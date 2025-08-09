@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
           }
           return {
             id: user._id.toString(),
-            username: user.username,
+            username: user.username.toString(),
             email: user.email,
           };
         } catch (error) {
@@ -56,12 +56,14 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token._id = user.id;
         token.email = user.email;
+        token.username = user?.username as string;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user._id = token._id as string;
+        session.user.username = token.username as string;
       }
       return session;
     },
