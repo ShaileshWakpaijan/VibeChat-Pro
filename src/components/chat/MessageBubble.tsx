@@ -12,15 +12,13 @@ const MessageBubble = ({ text, isSender, time }: MessageProps) => {
       className={`flex ${isSender ? "justify-end" : "justify-start"} mb-2 px-4`}
     >
       <div
-        className={`max-w-[80%] px-3 py-2 rounded-lg text-sm break-words
-          ${isSender ? "bg-stone-700 text-white rounded-br-none" : "bg-stone-900 text-white rounded-bl-none"}
+        className={`max-w-[80%] px-3 py-2 rounded-lg text-sm break-words dark:text-white
+          ${isSender ? "dark:bg-stone-700 bg-stone-200 rounded-br-none" : "dark:bg-stone-900 bg-stone-100 rounded-bl-none"}
         `}
       >
         <div className="flex items-end justify-between gap-2">
           <p className="flex-1">{text}</p>
-          <span className="text-[10px] text-gray-400">
-            {time}
-          </span>
+          <span className="text-[10px] text-gray-400">{time}</span>
         </div>
       </div>
     </div>

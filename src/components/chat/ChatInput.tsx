@@ -46,7 +46,7 @@ export function ChatInput() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex items-center gap-2 py-2 border-t md:border-none md:py-0 bg-stone-950"
+      className="flex items-center gap-2 py-2 border-t md:border-none md:py-0 dark:bg-stone-950 bg-white"
     >
       <Input
         {...register("message")}
@@ -56,7 +56,7 @@ export function ChatInput() {
       <Button
         type="submit"
         disabled={!watch("message")?.length}
-        className="cursor-pointer p-2 h-10 rounded-lg border text-stone-800 bg-white"
+        className="cursor-pointer p-2 h-10 rounded-lg border dark:text-stone-800 dark:bg-white"
       >
         <Send className="w-5 h-5 md:w-5 md:h-5" />
       </Button>

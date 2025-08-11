@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { toastStyles } from "@/lib/ToastStyle";
 import { VerifyOtp } from "./verify-otp";
+import ThemeButton from "../ThemeButton";
 
 const SignupForm = () => {
   const router = useRouter();
@@ -174,6 +175,7 @@ const SignupForm = () => {
         setIsOpen={setIsOpen}
         username={form.getValues("username")}
       />
+      <ThemeButton />
     </>
   );
 };

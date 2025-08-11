@@ -25,13 +25,13 @@ const ChatHeader = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="cursor-pointer hover:bg-stone-800 md:bg-stone-900 p-1 md:p-2 md:rounded-lg md:border">
+        <button className="cursor-pointer dark:hover:bg-stone-800 hover:bg-stone-100 dark:md:bg-stone-900 p-1 md:p-2 md:rounded-lg md:border">
           <Phone className="w-5 h-5" />
         </button>
-        <button className="cursor-pointer hover:bg-stone-800 md:bg-stone-900 p-1 md:p-2 md:rounded-lg md:border">
+        <button className="cursor-pointer dark:hover:bg-stone-800 hover:bg-stone-100 dark:md:bg-stone-900 p-1 md:p-2 md:rounded-lg md:border">
           <Video className="w-5 h-5" />
         </button>
-        <button className="cursor-pointer hover:bg-stone-800 md:bg-stone-900 p-1 md:p-2 md:rounded-lg md:border">
+        <button className="cursor-pointer dark:hover:bg-stone-800 hover:bg-stone-100 dark:md:bg-stone-900 p-1 md:p-2 md:rounded-lg md:border">
           <MoreVertical className="w-5 h-5" />
         </button>
       </div>

@@ -51,9 +51,9 @@ export function VerifyOtp({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="w-fit bg-card flex flex-col items-center">
-        <DialogHeader className="w-80 sm:w-[22rem] max-w-sm mx-2 shadow-md ">
+        <DialogHeader className="w-80 sm:w-[22rem] max-w-sm mx-2">
           <DialogTitle className="text-2xl text-center flex justify-center">
-            <div className=" bg-stone-700/30 p-4 rounded-full">
+            <div className=" bg-stone-700/10 dark:bg-stone-700/30 p-4 rounded-full">
               <Mail />
             </div>
           </DialogTitle>

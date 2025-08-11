@@ -11,15 +11,15 @@ export default function ChatItem({ name }: Props) {
       {/* Chat Info */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Row: Name & Time */}
-        <div className="flex justify-between items-center text-sm font-medium text-white">
+        <div className="flex justify-between items-center text-sm font-medium dark:text-white">
           <span className="truncate">Shailesh Wakpaijan</span>
-          <span className="text-xs text-white/60 whitespace-nowrap">
+          <span className="text-xs text-stone-400 dark:text-white/60 whitespace-nowrap">
             Yesterday
           </span>
         </div>
 
         {/* Bottom Row: Message Preview */}
-        <div className="flex items-center gap-1 text-white/80 text-sm truncate">
+        <div className="flex items-center gap-1 text-stone-600 dark:text-white/80 text-sm truncate">
           <span>✔</span>
           <span>This is the last message.</span>
         </div>
