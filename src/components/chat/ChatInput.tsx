@@ -15,7 +15,6 @@ export function ChatInput() {
     handleSubmit,
     reset,
     watch,
-    formState: { errors },
   } = useForm<MessageInput>({
     resolver: zodResolver(messageSchema),
   });

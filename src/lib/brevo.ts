@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { EmailVerification } from "@/emails/EmailVerification";
 import { TransactionalEmailsApi, SendSmtpEmail } from "@getbrevo/brevo";
 
