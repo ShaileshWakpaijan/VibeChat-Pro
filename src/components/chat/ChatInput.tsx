@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input"; // from shadcn
 import { Button } from "@/components/ui/button";
 import { MessageInput, messageSchema } from "@/lib/schemas/message-schema";
 import { Send } from "lucide-react";
-import Axios from "@/lib/axios";
-import { AxiosError } from "axios";
+// import Axios from "@/lib/axios";
+// import { AxiosError } from "axios";
 
 export function ChatInput() {
   const {

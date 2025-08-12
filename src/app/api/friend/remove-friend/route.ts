@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const removedFriend = await Friend.deleteOne({
+    await Friend.deleteOne({
       $or: [
         { sender: session.user?._id, receiver: friendId, status: "accepted" },
         { receiver: session.user?._id, sender: friendId, status: "accepted" },

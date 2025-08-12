@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/input-otp";
 import { toast } from "sonner";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { Mail } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 
 export function VerifyOtp({
   isOpen,
@@ -33,7 +33,8 @@ export function VerifyOtp({
   const [loading, setLoading] = useState(false);
 
   const onClickHandler = async () => {
-    let res = await useVerifyOtp({ username, otp });
+    setLoading(true);
+    const res = await useVerifyOtp({ username, otp });
     if (!res.success) {
       toast.error(<span>{res.message}</span>, {
         style: toastStyles.danger as React.CSSProperties,
@@ -103,8 +104,13 @@ export function VerifyOtp({
               />
             </InputOTPGroup>
           </InputOTP>
-          <Button type="submit" className="w-full" onClick={onClickHandler}>
-            Verify
+          <Button
+            disabled={loading}
+            type="submit"
+            className="w-full"
+            onClick={onClickHandler}
+          >
+            {loading ? <Loader2 className=" animate-spin" /> : "Verify"}
           </Button>
         </div>
       </DialogContent>

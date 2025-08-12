@@ -11,9 +11,12 @@ const Dashboard = () => {
   console.log(session);
 
   useEffect(() => {
-    if (session.status === "unauthenticated") return router.push("/login");
+    if (session.status === "unauthenticated") {
+      router.push("/login");
+      return;
+    }
   }, [session]);
-  
+
   if (session.status === "loading") return <h1>Loading...</h1>;
   return (
     <div>

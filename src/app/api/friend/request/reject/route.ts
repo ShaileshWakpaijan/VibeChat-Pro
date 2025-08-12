@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const deleteFriendRequest = await Friend.deleteOne({
+    await Friend.deleteOne({
       sender,
       receiver: session.user?._id,
     });

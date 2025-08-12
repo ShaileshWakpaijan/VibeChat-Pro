@@ -1,6 +1,5 @@
-type Props = { name: string };
 
-export default function ChatItem({ name }: Props) {
+export default function ChatItem() {
   return (
     <div className="w-full px-6 py-4 hover:bg-white/7 transition-all duration-200 cursor-pointer flex items-center gap-3 border-b border-white/10">
       {/* Profile Picture */}
