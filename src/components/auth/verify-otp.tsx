@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useVerifyOtp } from "@/hooks/useVerifyOtp";
 import { toastStyles } from "@/lib/ToastStyle";
 import {
   Dialog,
@@ -18,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Loader2, Mail } from "lucide-react";
+import useVerifyOtp from "@/hooks/useVerifyOtp";
 
 export function VerifyOtp({
   isOpen,
@@ -31,10 +31,11 @@ export function VerifyOtp({
   const router = useRouter();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const verifyotp = useVerifyOtp();
 
   const onClickHandler = async () => {
     setLoading(true);
-    const res = await useVerifyOtp({ username, otp });
+    const res = await verifyotp({ username, otp });
     if (!res.success) {
       toast.error(<span>{res.message}</span>, {
         style: toastStyles.danger as React.CSSProperties,

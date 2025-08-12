@@ -5,11 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from "./ChatInput";
 import ChatHeader from "./ChatHeader";
 
-type Props = {
-  chatId: string;
-};
-
-export default function ChatWindow({ chatId }: Props) {
+export default function ChatWindow() {
   return (
     <div className="md:px-4 flex flex-col relative h-[calc(100vh-4.8rem)]">
       {/* Header */}

@@ -7,7 +7,7 @@ export async function sendOtpEmailByBrevo(
   username: string
 ) {
   try {
-    let emailAPI = new TransactionalEmailsApi();
+    const emailAPI = new TransactionalEmailsApi();
     (emailAPI as any).authentications.apiKey.apiKey =
       process.env.BREVO_API_KEY!;
     const html = EmailVerification({ username, otp });
@@ -21,7 +21,7 @@ export async function sendOtpEmailByBrevo(
       subject: "VibeChat-Pro | Verification Code",
       htmlContent: html,
     };
-    let emailRes = await emailAPI.sendTransacEmail(sendEmail);
+    const emailRes = await emailAPI.sendTransacEmail(sendEmail);
     console.log("Email Sent.");
 
     if (!emailRes.body?.messageId && !emailRes?.body.messageIds?.length) {

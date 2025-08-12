@@ -15,7 +15,6 @@ import { Input } from "../ui/input";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { signupSchema, SignupSchema } from "@/lib/schemas/auth-schema";
-import { useSignup } from "@/hooks/useSignup";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -23,10 +22,12 @@ import { toastStyles } from "@/lib/ToastStyle";
 import { VerifyOtp } from "./verify-otp";
 import ThemeButton from "../ThemeButton";
 import { Loader2 } from "lucide-react";
+import useSignup from "@/hooks/useSignup";
 
 const SignupForm = () => {
   const router = useRouter();
   const session = useSession();
+  const signup = useSignup();
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -42,7 +43,7 @@ const SignupForm = () => {
 
   const handleSignup = async (data: SignupSchema) => {
     setLoading(true);
-    const res = await useSignup(data);
+    const res = await signup(data);
 
     if (!res.success) {
       toast.error(<span>{res.message}</span>, {
@@ -69,7 +70,7 @@ const SignupForm = () => {
   useEffect(() => {
     if (session.status === "authenticated") router.push("/dashboard");
     inputRef.current?.focus();
-  }, [session]);
+  }, [session, router]);
 
   if (session?.status === "loading") return <h1>Loading...</h1>;
   return (

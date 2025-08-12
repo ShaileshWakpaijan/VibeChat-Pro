@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     });
 
     if (!isFriend) {
-      const friendRequest = await Friend.create({
+      await Friend.create({
         sender: session.user?._id,
         receiver,
       });

@@ -67,7 +67,7 @@ const LoginForm = () => {
       return;
     }
     inputRef.current?.focus();
-  }, [session]);
+  }, [session, router]);
 
   if (session?.status === "loading") return <h1>Loading...</h1>;
   return (
@@ -127,7 +127,7 @@ const LoginForm = () => {
         </CardContent>
         <CardFooter>
           <div className=" text-center w-full cursor-pointer">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href={"/signup"} className="font-bold">
               Sign Up
             </Link>
