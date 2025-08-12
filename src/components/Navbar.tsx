@@ -1,10 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, Moon, Sun } from "lucide-react";
 import { SearchFriend } from "./chat/SearchFriend";
 import { useTheme } from "next-themes";
 
 export const Navbar_LG = () => {
   const { setTheme, theme, systemTheme } = useTheme();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
 
   return (
     <div className="h-14 mx-3 border-b flex items-center justify-between px-7">

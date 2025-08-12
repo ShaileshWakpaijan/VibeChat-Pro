@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { toastStyles } from "@/lib/ToastStyle";
 import { VerifyOtp } from "./verify-otp";
 import ThemeButton from "../ThemeButton";
+import { Loader2 } from "lucide-react";
 
 const SignupForm = () => {
   const router = useRouter();
@@ -155,8 +156,8 @@ const SignupForm = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Send OTP
+              <Button disabled={loading} type="submit" className="w-full">
+                {loading ? <Loader2 className=" animate-spin" /> : "Send OTP"}
               </Button>
             </form>
           </Form>

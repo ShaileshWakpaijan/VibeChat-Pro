@@ -12,17 +12,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { loginSchema, LoginSchema } from "@/lib/schemas/auth-schema";
-import { signIn, SignInResponse, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import ThemeButton from "../ThemeButton";
+import { toast } from "sonner";
+import { toastStyles } from "@/lib/ToastStyle";
+import { Loader2 } from "lucide-react";
 
 const LoginForm = () => {
   const router = useRouter();
   const session = useSession();
-  // console.log(session);
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -33,7 +36,7 @@ const LoginForm = () => {
   });
 
   const handleLogin = async ({ username, password }: LoginSchema) => {
-    console.log(username, password);
+    setLoading(true);
     const res = await signIn("credentials", {
       redirect: false,
       username,
@@ -41,6 +44,18 @@ const LoginForm = () => {
     });
 
     console.log(res);
+
+    if (res?.error) {
+      toast.error(<span>{res?.error}</span>, {
+        style: toastStyles.danger as React.CSSProperties,
+      });
+      setLoading(false);
+      return;
+    }
+    setLoading(false);
+    toast.success(<span>Login successful.</span>, {
+      style: toastStyles.success as React.CSSProperties,
+    });
     if (!res?.error) return router.push("/chat");
   };
 
@@ -101,8 +116,8 @@ const LoginForm = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Login
+              <Button disabled={loading} type="submit" className="w-full">
+                {loading ? <Loader2 className=" animate-spin" /> : "Login"}
               </Button>
             </form>
           </Form>

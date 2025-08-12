@@ -24,7 +24,7 @@ export function SearchFriend() {
           <Search className="w-5 h-5" />
           <div>Search Friend...</div>
         </div>
-        <button className=" md:hidden cursor-pointer bg-stone-800 p-2 border rounded-lg">
+        <button className=" md:hidden cursor-pointer dark:bg-stone-800 p-2 border rounded-lg">
           <Search className="w-5 h-5" />
         </button>
       </div>

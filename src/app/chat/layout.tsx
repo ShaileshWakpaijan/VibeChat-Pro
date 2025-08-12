@@ -29,7 +29,7 @@ export default function ChatLayout({
         <>
           <Navbar_SM />
           <div className="h-screen border md:rounded-2xl overflow-hidden">
-            <div className="w-full h-20 bg-black" />
+            <div className="w-full h-20" />
             <ScrollArea className="h-[calc(100vh-5rem)] w-full">
               <ChatList />
             </ScrollArea>
