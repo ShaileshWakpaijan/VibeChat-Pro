@@ -4,11 +4,10 @@ import Otp from "@/models/Otp";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
 
-export const generateOtp = (): string => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
-
 export async function POST(req: Request) {
+  const generateOtp = (): string => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  };
   try {
     const { email, username, password } = await req.json();
 
