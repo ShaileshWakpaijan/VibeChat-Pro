@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/authOptions";
 import { ConnectDB } from "@/lib/ConnectDB";
 import Friend from "@/models/Friend";
+import { Types } from "mongoose";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
@@ -18,10 +19,37 @@ export async function GET() {
 
     await ConnectDB();
 
-    const pendingFriendRequests = await Friend.find({
-      receiver: session.user?._id,
-      status: "pending",
-    });
+    const pendingFriendRequests = await Friend.aggregate([
+      {
+        $match: {
+          receiver: new Types.ObjectId(user?._id),
+          status: "pending",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "sender",
+          foreignField: "_id",
+          as: "result",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                email: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          username: { $arrayElemAt: ["$result.username", 0] },
+          email: { $arrayElemAt: ["$result.email", 0] },
+          userId: { $arrayElemAt: ["$result._id", 0] },
+        },
+      },
+    ]);
 
     return NextResponse.json(
       {

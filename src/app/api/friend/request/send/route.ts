@@ -52,28 +52,22 @@ export async function POST(req: Request) {
       );
     }
 
-    if (isFriend.status === "pending") {
+    if (isFriend.status === "pending" && isFriend.sender.equals(user?._id)) {
       return NextResponse.json(
         { success: false, message: "Already requested." },
         { status: 400 }
       );
     }
-    // if (isFriend.status === "pending" && isFriend.sender === user?._id) {
-    //   return NextResponse.json(
-    //     { success: false, message: "Already requested." },
-    //     { status: 400 }
-    //   );
-    // }
 
-    // if (isFriend.status === "pending" && isFriend.receiver === user?._id) {
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       message: "Request is already in your pending requestes.",
-    //     },
-    //     { status: 400 }
-    //   );
-    // }
+    if (isFriend.status === "pending" && isFriend.receiver.equals(user?._id)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Request is already in your pending requestes.",
+        },
+        { status: 400 }
+      );
+    }
 
     if (isFriend.status === "accepted") {
       return NextResponse.json(

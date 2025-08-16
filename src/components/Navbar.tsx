@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Bell, Moon, Sun } from "lucide-react";
-import { SearchFriend } from "./chat/SearchFriend";
+import { Moon, Sun } from "lucide-react";
+import { SearchFriend } from "./friend/SearchFriend";
 import { useTheme } from "next-themes";
+import { FriendRequestList } from "./friend/FriendRequestList";
 
 export const Navbar_LG = () => {
   const { setTheme, theme, systemTheme } = useTheme();
@@ -20,7 +21,7 @@ export const Navbar_LG = () => {
       </div>
       <div className="flex items-center gap-7">
         <button className="cursor-pointer p-3">
-          <Bell className="w-5 h-5" />
+          <FriendRequestList />
         </button>
         <button
           className="cursor-pointer p-3"
@@ -65,7 +66,7 @@ export const Navbar_SM = () => {
       </div>
       <div className="flex items-center gap-2">
         <button className="cursor-pointer p-2">
-          <Bell className="w-5 h-5" />
+          <FriendRequestList />
         </button>
         <button
           className="cursor-pointer p-2"

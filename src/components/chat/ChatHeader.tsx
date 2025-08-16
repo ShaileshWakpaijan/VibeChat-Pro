@@ -1,13 +1,14 @@
 import { ArrowLeft, MoreVertical, Phone, Video } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 const ChatHeader = () => {
   return (
     <div className="flex items-center justify-between px-4 py-2 h-14">
       <div className="flex items-center gap-3">
-        <div className="lg:hidden">
+        <Link href={"/chat"} className="lg:hidden">
           <ArrowLeft />
-        </div>
+        </Link>
         <div className="relative">
           <div className="min-w-[44px] min-h-[44px] h-11 w-11 bg-stone-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
             SW
