@@ -62,6 +62,7 @@ export function FriendRequestList() {
                 <AcceptRejectBtn
                   setPendingRequests={setPendingRequests}
                   userId={friend?.userId}
+                  setOpen={setOpen}
                 />
               </CommandItem>
             ))}

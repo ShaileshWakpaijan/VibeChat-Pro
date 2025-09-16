@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "../ui/button";
 import useSendCancelRequest from "@/hooks/useSendCancelRequest";
 import { toast } from "sonner";
@@ -9,9 +9,11 @@ import { Loader2 } from "lucide-react";
 const AddFriendBtn = ({
   id,
   friendStatus,
+  setOpen
 }: {
   id: string;
   friendStatus?: "accepted" | "pending" | undefined;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const { sendRequestFn, cancelRequestFn } = useSendCancelRequest();
   const [loading, setLoading] = useState(false);
@@ -63,7 +65,7 @@ const AddFriendBtn = ({
     </Button>
   ) : friendStatus === "accepted" ? (
     <Link href={`/chat/${id}`}>
-      <Button className=" px-3 cursor-pointer w-24 bg-transparent hover:bg-transparent border-2 font-bold text-black dark:text-white">
+      <Button onClick={() => setOpen(false)} className=" px-3 cursor-pointer w-24 bg-transparent hover:bg-transparent border-2 font-bold text-black dark:text-white">
         Chat
       </Button>
     </Link>

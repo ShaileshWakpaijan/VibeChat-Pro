@@ -85,7 +85,7 @@ export function SearchFriend() {
                   </span>
                   <span className=" font-semibold">@{user.username}</span>
                 </div>
-                <AddFriendBtn friendStatus={user.status} id={user._id} />
+                <AddFriendBtn friendStatus={user.status} id={user._id} setOpen={setOpen} />
               </div>
             );
           })}
