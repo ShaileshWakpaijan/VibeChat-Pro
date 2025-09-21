@@ -20,7 +20,10 @@ export async function GET(req: Request) {
 
     const conversations = await Conversation.find({
       participants: user._id,
-    }).sort({ lastMessageAt: -1 });
+    })
+      .sort({ lastMessageAt: -1 })
+      .populate("lastMessage")
+      .populate("participants", "username email");
 
     return NextResponse.json({ success: true, conversations }, { status: 200 });
   } catch (err) {

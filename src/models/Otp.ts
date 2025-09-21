@@ -28,4 +28,6 @@ const OtpSchema: Schema = new Schema<IOtp>(
   { timestamps: true }
 );
 
+OtpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
 export default models?.Otp || model<IOtp>("Otp", OtpSchema);

@@ -38,4 +38,6 @@ const MessageSchema: Schema = new Schema<IMessage>(
   { timestamps: true }
 );
 
+MessageSchema.index({ conversationId: 1, createdAt: -1 }); 
+
 export default models?.Message || model<IMessage>("Message", MessageSchema);

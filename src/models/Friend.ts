@@ -27,4 +27,6 @@ const FriendSchema: Schema = new Schema<IFriend>(
   { timestamps: true }
 );
 
+FriendSchema.index({ sender: 1, receiver: 1 }, { unique: true });
+
 export default models?.Friend || model<IFriend>("Friend", FriendSchema);
