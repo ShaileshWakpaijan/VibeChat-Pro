@@ -21,9 +21,8 @@ export async function GET(req: Request) {
     const conversations = await Conversation.find({
       participants: user._id,
     })
-      .sort({ lastMessageAt: -1 })
-      .populate("lastMessage")
-      .populate("participants", "username email");
+      .populate("lastMessage", "content createdAt sender")
+      .populate("participants", "username");
 
     return NextResponse.json({ success: true, conversations }, { status: 200 });
   } catch (err) {

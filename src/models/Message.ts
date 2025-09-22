@@ -3,7 +3,6 @@ import { Document, model, models, Schema, Types } from "mongoose";
 export interface IMessage extends Document {
   conversationId: Types.ObjectId;
   sender: Types.ObjectId;
-  receiver: Types.ObjectId;
   status: "sent" | "delivered" | "read";
   content: string;
 }
@@ -16,11 +15,6 @@ const MessageSchema: Schema = new Schema<IMessage>(
       required: true,
     },
     sender: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    receiver: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
