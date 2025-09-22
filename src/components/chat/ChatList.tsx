@@ -1,35 +1,45 @@
-'use client';
+"use client";
 
-import ChatItem from './ChatItem';
-import Link from 'next/link';
-
-const dummyChats = [
-  { id: '1', name: 'Alice' },
-  { id: '2', name: 'Alice' },
-  { id: '3', name: 'Alice' },
-  { id: '4', name: 'Alice' },
-  { id: '5', name: 'Alice' },
-  { id: '6', name: 'Alice' },
-  { id: '7', name: 'Alice' },
-  { id: '8', name: 'Alice' },
-  { id: '9', name: 'Alice' },
-  { id: '10', name: 'Alice' },
-  { id: '11', name: 'Alice' },
-  { id: '12', name: 'Alice' },
-  { id: '13', name: 'Alice' },
-  { id: '14', name: 'Alice' },
-  { id: '15', name: 'Alice' },
-  { id: '16', name: 'Alice' },
-];
+import useGetConversationList from "@/hooks/useGetConversationList";
+import ChatItem from "./ChatItem";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { ConversationListResponse } from "@/lib/types/serverResponse";
 
 export default function ChatList() {
-  return (
+  const getConversationList = useGetConversationList();
+  const [conversationList, setConversationList] = useState<
+    ConversationListResponse[]
+  >([]);
+  const [loading, setLoading] = useState(false);
+
+  const getConversaionListFn = async () => {
+    setLoading(true);
+    try {
+      const res = await getConversationList();
+      setConversationList(res?.conversations);
+      console.log(res);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error("Failed to load conversation list", error);
+    }
+  };
+
+  useEffect(() => {
+    getConversaionListFn();
+  }, []);
+
+  return loading ? (
+    <>loading</>
+  ) : (
     <div className="w-full overflow-y-auto">
-      {dummyChats.map(chat => (
-        <Link key={chat.id} href={`/chat/${chat.id}`}>
-          <ChatItem name={chat.name} />
-        </Link>
-      ))}
+      {conversationList?.length != 0 &&
+        conversationList.map((chat, i) => (
+          <Link key={chat._id} href={`/chat/${chat._id}`}>
+            <ChatItem lastMessage={chat?.lastMessage} />
+          </Link>
+        ))}
     </div>
   );
 }

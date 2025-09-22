@@ -21,8 +21,12 @@ export async function GET(req: Request) {
     const conversations = await Conversation.find({
       participants: user._id,
     })
-      .populate("lastMessage", "content createdAt sender")
-      .populate("participants", "username");
+      .populate("participants", "username")
+      .populate({
+        path: "lastMessage",
+        select: "content createdAt",
+        populate: { path: "sender", select: "username" },
+      });
 
     return NextResponse.json({ success: true, conversations }, { status: 200 });
   } catch (err) {

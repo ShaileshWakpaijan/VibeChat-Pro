@@ -5,7 +5,7 @@ import { toastStyles } from "@/lib/ToastStyle";
 import useAcceptRejectRequest from "@/hooks/useAcceptRejectRequest";
 import clsx from "clsx";
 import Link from "next/link";
-import { ResponseRequestList } from "./FriendRequestList";
+import { FriendRequestListResponse } from "@/lib/types/serverResponse";
 
 const AcceptRejectBtn = ({
   userId,
@@ -13,7 +13,7 @@ const AcceptRejectBtn = ({
   setOpen
 }: {
   userId: string;
-  setPendingRequests: Dispatch<SetStateAction<ResponseRequestList[]>>;
+  setPendingRequests: Dispatch<SetStateAction<FriendRequestListResponse[]>>;
   setOpen: Dispatch<SetStateAction<boolean>>
 }) => {
   const [loading, setLoading] = useState(false);

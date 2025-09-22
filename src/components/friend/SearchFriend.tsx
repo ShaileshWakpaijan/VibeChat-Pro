@@ -11,18 +11,12 @@ import { useCallback, useEffect, useState } from "react";
 import debounce from "lodash.debounce";
 import useSearchUser from "@/hooks/useSearchUser";
 import AddFriendBtn from "./AddFriendBtn";
-
-type ResponseUser = {
-  _id: string;
-  username: string;
-  email: string;
-  status?: "accepted" | "pending";
-};
+import { SearchUserResponse } from "@/lib/types/serverResponse";
 
 export function SearchFriend() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [users, setUsers] = useState<ResponseUser[]>([]);
+  const [users, setUsers] = useState<SearchUserResponse[]>([]);
   const searchUserFn = useSearchUser();
 
   const searchUser = async (username: string) => {

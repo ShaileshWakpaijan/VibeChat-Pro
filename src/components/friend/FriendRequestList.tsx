@@ -12,17 +12,11 @@ import {
 import useGetPendingFriendRequest from "@/hooks/useGetPendingFriendRequest";
 import { useState } from "react";
 import AcceptRejectBtn from "./AcceptRejectBtn";
-
-export interface ResponseRequestList {
-  _id: string;
-  username: string;
-  email: string;
-  userId: string;
-}
+import { FriendRequestListResponse } from "@/lib/types/serverResponse";
 
 export function FriendRequestList() {
   const [open, setOpen] = useState(false);
-  const [pendingRequests, setPendingRequests] = useState<ResponseRequestList[]>(
+  const [pendingRequests, setPendingRequests] = useState<FriendRequestListResponse[]>(
     []
   );
   const pendingFriendRequest = useGetPendingFriendRequest();

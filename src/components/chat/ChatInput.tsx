@@ -6,40 +6,14 @@ import { Input } from "@/components/ui/input"; // from shadcn
 import { Button } from "@/components/ui/button";
 import { MessageInput, messageSchema } from "@/lib/schemas/message-schema";
 import { Send } from "lucide-react";
-// import Axios from "@/lib/axios";
-// import { AxiosError } from "axios";
 
 export function ChatInput() {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-  } = useForm<MessageInput>({
+  const { register, handleSubmit, reset, watch } = useForm<MessageInput>({
     resolver: zodResolver(messageSchema),
   });
 
   const onSubmit = async (data: MessageInput) => {
     console.log(data.message);
-    // try {
-    // const res = await Axios.post("/friend/request/send", {
-    //   receiver: data.message.trim(),
-    // });
-    // const res = await Axios.post("/friend/request/reject", {
-    //   receiver: data.message.trim(),
-    // });
-    // const res = await Axios.post("/friend/request/accept", {
-    //   sender: data.message.trim(),
-    // });
-    // const res = await Axios.post("/friend/remove-friend", {
-    //   friendId: data.message.trim(),
-    // });
-    // console.log(res.data);
-    // } catch (error) {
-    //   const err = error as AxiosError;
-    //   console.log(err.response?.data);
-    // }
-    reset(); // clear input
   };
 
   return (
