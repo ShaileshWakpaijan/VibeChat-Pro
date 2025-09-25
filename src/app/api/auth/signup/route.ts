@@ -20,12 +20,11 @@ export async function POST(req: Request) {
 
     await ConnectDB();
 
-    const existingVerifiedUserWithUsername = await User.findOne({
+    const existingUserWithUsername = await User.findOne({
       username,
-      isVerified: true,
     });
 
-    if (existingVerifiedUserWithUsername) {
+    if (existingUserWithUsername && existingUserWithUsername?.isVerified) {
       return NextResponse.json(
         {
           success: false,
@@ -33,6 +32,8 @@ export async function POST(req: Request) {
         },
         { status: 409 }
       );
+    } else {
+      await existingUserWithUsername.delete();
     }
 
     const existinUserWithEmail = await User.findOne({ email });
@@ -52,9 +53,18 @@ export async function POST(req: Request) {
 
         const otp = generateOtp();
         const existingOtp = await Otp.findOne({ username });
-        existingOtp.otp = otp;
-        existingOtp.expiresAt = Date.now() + 1000 * 60 * 60;
-        await existingOtp.save();
+
+        if (!existingOtp) {
+          await Otp.create({
+            username,
+            otp,
+            expiresAt: Date.now() + 1000 * 60 * 60,
+          });
+        } else {
+          existingOtp.otp = otp;
+          existingOtp.expiresAt = Date.now() + 1000 * 60 * 60;
+          await existingOtp.save();
+        }
 
         const emailResponse = await sendOtpEmailByBrevo(email, otp, username);
 

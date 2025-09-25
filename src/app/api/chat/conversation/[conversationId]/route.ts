@@ -93,7 +93,6 @@ export async function GET(
     let messages = [];
     messages = await Message.find({ conversationId: conversation._id })
       .populate("sender", "username")
-      .populate("receiver", "username")
       .sort({ createdAt: -1 })
       .limit(20);
 

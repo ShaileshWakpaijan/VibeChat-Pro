@@ -39,8 +39,6 @@ export async function POST(
       );
     }
 
-    console.log("content: ", content);
-
     await ConnectDB();
 
     const conversation = await Conversation.findById(conversationId);

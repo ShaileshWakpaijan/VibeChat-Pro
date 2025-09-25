@@ -1,4 +1,9 @@
 import mongoose from "mongoose";
+import "@/models/User";
+import "@/models/Friend";
+import "@/models/Conversation";
+import "@/models/Message";
+import "@/models/Otp";
 
 let isConnected: boolean = false;
 
