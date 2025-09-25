@@ -33,7 +33,9 @@ export async function POST(req: Request) {
         { status: 409 }
       );
     } else {
-      await existingUserWithUsername.delete();
+      await User.findOneAndDelete({
+        username,
+      });
     }
 
     const existinUserWithEmail = await User.findOne({ email });
