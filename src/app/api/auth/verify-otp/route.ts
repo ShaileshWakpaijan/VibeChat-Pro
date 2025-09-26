@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const { username, otp } = await req.json();
     await ConnectDB();
     const user = await User.findOne({ username });
-    if (user.isVerified) {
+    if (user?.isVerified) {
       return NextResponse.json(
         { success: false, message: "User already verified." },
         { status: 400 }
