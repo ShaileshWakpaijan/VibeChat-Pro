@@ -2,21 +2,23 @@ import { LastMessage } from "@/lib/types/serverResponse";
 
 export default function ChatItem({
   lastMessage,
+  name,
 }: {
   lastMessage?: LastMessage;
+  name: string;
 }) {
   return (
     <div className="w-full px-6 py-4 hover:bg-white/7 transition-all duration-200 cursor-pointer flex items-center gap-3 border-b border-white/10">
       {/* Profile Picture */}
       <div className="min-w-[48px] min-h-[48px] w-12 h-12 bg-stone-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-        {lastMessage?.sender.username.charAt(0).toUpperCase()}
+        {name?.charAt(0).toUpperCase()}
       </div>
 
       {/* Chat Info */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Row: Name & Time */}
         <div className="flex justify-between items-center text-sm font-medium dark:text-white">
-          <span className="truncate">{lastMessage?.sender.username}</span>
+          <span className="truncate">{name}</span>
           <span className="text-xs text-stone-400 dark:text-white/60 whitespace-nowrap">
             {new Date(lastMessage?.createdAt || "").toLocaleTimeString([], {
               hour: "2-digit",

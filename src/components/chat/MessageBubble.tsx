@@ -18,7 +18,12 @@ const MessageBubble = ({ text, isSender, time }: MessageProps) => {
       >
         <div className="flex items-end justify-between gap-2">
           <p className="flex-1">{text}</p>
-          <span className="text-[10px] text-gray-400">{time}</span>
+          <span className="text-[10px] text-gray-400">
+            {new Date(time || "").toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
         </div>
       </div>
     </div>

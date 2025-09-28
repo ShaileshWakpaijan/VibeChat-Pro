@@ -18,7 +18,6 @@ export default function ChatList() {
     try {
       const res = await getConversationList();
       setConversationList(res?.conversations);
-      console.log(res);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -37,7 +36,7 @@ export default function ChatList() {
       {conversationList?.length != 0 &&
         conversationList.map((chat, i) => (
           <Link key={chat._id} href={`/chat/${chat._id}`}>
-            <ChatItem lastMessage={chat?.lastMessage} />
+            <ChatItem lastMessage={chat?.lastMessage} name={chat?.chatName} />
           </Link>
         ))}
     </div>

@@ -4,152 +4,68 @@ import MessageBubble from "./MessageBubble";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from "./ChatInput";
 import ChatHeader from "./ChatHeader";
+import useLoadConversationMsg from "@/hooks/useLoadConversationMsg";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import {
+  ConversationResponse,
+  MessageListResponse,
+} from "@/lib/types/serverResponse";
+import { useSession } from "next-auth/react";
 
 export default function ChatWindow() {
+  const { chatId }: { chatId: string } = useParams();
+  const loadConversationMsg = useLoadConversationMsg();
+  const session = useSession();
+  const [loading, setLoading] = useState(false);
+  const [messageList, setMessageList] = useState<MessageListResponse[]>([]);
+  const [conversationInfo, setConversationInfo] = useState<ConversationResponse | null>(
+    null
+  );
+
+  const loadConversationMsgFn = async () => {
+    setLoading(true);
+    try {
+      const res = await loadConversationMsg(chatId);
+      setMessageList(res?.messages);
+      setConversationInfo(res?.conversation);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error("Failed to load conversation list", error);
+    }
+  };
+
+  useEffect(() => {
+    loadConversationMsgFn();
+  }, []);
+
   return (
     <div className="md:px-4 flex flex-col relative h-[calc(100vh-4.8rem)]">
       {/* Header */}
-      <ChatHeader />
+      {loading ? (
+        <>Loading...</>
+      ) : (
+        conversationInfo && <ChatHeader name={conversationInfo?.chatName} />
+      )}
 
       {/* Scrollable Message Area */}
       <ScrollArea className=" h-[calc(100vh-8rem)] md:h-[calc(100vh-12rem)]">
-        <div className="flex flex-col py-2">
-          <MessageBubble text="Hello!" isSender={false} time="10:30 AM" />
-          <MessageBubble text="Hello!" isSender={false} time="10:30 AM" />
-          <MessageBubble text="Hello!" isSender={false} time="10:30 AM" />
-          <MessageBubble text="Hi there!" isSender={true} time="10:31 AM" />
-          <MessageBubble text="Hi there!" isSender={true} time="10:31 AM" />
-          <MessageBubble text="How are you?" isSender={false} time="10:32 AM" />
-          <MessageBubble text="How are you?" isSender={false} time="10:32 AM" />
-          <MessageBubble text="How are you?" isSender={false} time="10:32 AM" />
-          <MessageBubble
-            text="I'm good, thanks! You?"
-            isSender={true}
-            time="10:33 AM"
-          />
-          <MessageBubble
-            text="I'm good, thanks! You?"
-            isSender={true}
-            time="10:33 AM"
-          />
-          <MessageBubble
-            text="I'm good, thanks! You?"
-            isSender={true}
-            time="10:33 AM"
-          />
-          <MessageBubble
-            text="Doing well, just working on some projects."
-            isSender={false}
-            time="10:34 AM"
-          />
-          <MessageBubble
-            text="Sounds great! Let's catch up later."
-            isSender={true}
-            time="10:35 AM"
-          />
-          <MessageBubble
-            text="Sure, talk to you later!"
-            isSender={false}
-            time="10:36 AM"
-          />
-          <MessageBubble text="Take care!" isSender={true} time="10:37 AM" />
-          <MessageBubble text="Hello!" isSender={false} time="10:30 AM" />
-          <MessageBubble text="Hi there!" isSender={true} time="10:31 AM" />
-          <MessageBubble text="How are you?" isSender={false} time="10:32 AM" />
-          <MessageBubble
-            text="I'm good, thanks! You?"
-            isSender={true}
-            time="10:33 AM"
-          />
-          <MessageBubble
-            text="Doing well, just working on some projects."
-            isSender={false}
-            time="10:34 AM"
-          />
-          <MessageBubble
-            text="Sounds great! Let's catch up later."
-            isSender={true}
-            time="10:35 AM"
-          />
-          <MessageBubble
-            text="Sure, talk to you later!"
-            isSender={false}
-            time="10:36 AM"
-          />
-          <MessageBubble text="Take care!" isSender={true} time="10:37 AM" />
-          <MessageBubble text="Hello!" isSender={false} time="10:30 AM" />
-          <MessageBubble text="Hi there!" isSender={true} time="10:31 AM" />
-          <MessageBubble text="How are you?" isSender={false} time="10:32 AM" />
-          <MessageBubble
-            text="I'm good, thanks! You?"
-            isSender={true}
-            time="10:33 AM"
-          />
-          <MessageBubble
-            text="Doing well, just working on some projects."
-            isSender={false}
-            time="10:34 AM"
-          />
-          <MessageBubble
-            text="Sounds great! Let's catch up later."
-            isSender={true}
-            time="10:35 AM"
-          />
-          <MessageBubble
-            text="Sure, talk to you later!"
-            isSender={false}
-            time="10:36 AM"
-          />
-          <MessageBubble text="Take care!" isSender={true} time="10:37 AM" />
-          <MessageBubble text="Hello!" isSender={false} time="10:30 AM" />
-          <MessageBubble text="Hi there!" isSender={true} time="10:31 AM" />
-          <MessageBubble text="How are you?" isSender={false} time="10:32 AM" />
-          <MessageBubble
-            text="I'm good, thanks! You?"
-            isSender={true}
-            time="10:33 AM"
-          />
-          <MessageBubble
-            text="Doing well, just working on some projects."
-            isSender={false}
-            time="10:34 AM"
-          />
-          <MessageBubble
-            text="Sounds great! Let's catch up later."
-            isSender={true}
-            time="10:35 AM"
-          />
-          <MessageBubble
-            text="Sure, talk to you later!"
-            isSender={false}
-            time="10:36 AM"
-          />
-          <MessageBubble text="Take care!" isSender={true} time="10:37 AM" />
-          <MessageBubble text="Hello!" isSender={false} time="10:30 AM" />
-          <MessageBubble text="Hi there!" isSender={true} time="10:31 AM" />
-          <MessageBubble text="How are you?" isSender={false} time="10:32 AM" />
-          <MessageBubble
-            text="I'm good, thanks! You?"
-            isSender={true}
-            time="10:33 AM"
-          />
-          <MessageBubble
-            text="Doing well, just working on some projects."
-            isSender={false}
-            time="10:34 AM"
-          />
-          <MessageBubble
-            text="Sounds great! Let's catch up later."
-            isSender={true}
-            time="10:35 AM"
-          />
-          <MessageBubble
-            text="Sure, talk to you later!"
-            isSender={false}
-            time="10:36 AM"
-          />
-          <MessageBubble text="Take care!" isSender={true} time="10:37 AM" />
-        </div>
+        {loading ? (
+          <>Loading...</>
+        ) : (
+          <div className="flex flex-col py-2">
+            {messageList?.length != 0 &&
+              messageList.map((msg, i) => (
+                <MessageBubble
+                  key={msg._id}
+                  text={msg.content}
+                  isSender={session?.data?.user?._id == msg.sender._id}
+                  time={msg.createdAt}
+                />
+              ))}
+          </div>
+        )}
       </ScrollArea>
 
       {/* Footer/Input Placeholder */}

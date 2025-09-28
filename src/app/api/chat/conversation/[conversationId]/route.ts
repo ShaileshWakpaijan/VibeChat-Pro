@@ -33,7 +33,65 @@ export async function GET(
 
     await ConnectDB();
 
-    const conversation = await Conversation.findById(conversationId);
+    const [conversation] = await Conversation.aggregate([
+      {
+        $match: {
+          _id: new Types.ObjectId(conversationId),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "participants",
+          foreignField: "_id",
+          as: "participants",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                _id: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          chatName: {
+            $cond: {
+              if: {
+                $eq: ["$type", "group"],
+              },
+              then: "$groupName",
+              else: {
+                $let: {
+                  vars: {
+                    otherThanMe: {
+                      $filter: {
+                        input: "$participants",
+                        as: "p",
+                        cond: {
+                          $ne: ["$$p._id", new Types.ObjectId(user?._id)],
+                        },
+                      },
+                    },
+                  },
+                  in: {
+                    $arrayElemAt: ["$$otherThanMe.username", 0],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          chatName: 1,
+          participants: 1,
+        },
+      },
+    ]);
 
     if (!conversation) {
       const one2OneConversation = await Conversation.findOne({
@@ -77,8 +135,8 @@ export async function GET(
     }
 
     if (
-      !conversation.participants
-        .map((p: Types.ObjectId) => p.toString())
+      !conversation?.participants
+        .map((p: Types.ObjectId) => p._id.toString())
         .includes(user._id.toString())
     ) {
       return NextResponse.json(
@@ -91,13 +149,18 @@ export async function GET(
     }
 
     let messages = [];
-    messages = await Message.find({ conversationId: conversation._id })
+    messages = await Message.find({ conversationId: conversation?._id })
       .populate("sender", "username")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .limit(20);
 
     return NextResponse.json(
-      { success: true, message: "success", messages, conversation },
+      {
+        success: true,
+        message: "Message loaded successfully.",
+        messages,
+        conversation,
+      },
       { status: 200 }
     );
   } catch (err) {

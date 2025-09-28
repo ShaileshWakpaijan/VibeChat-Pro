@@ -5,20 +5,27 @@ interface Participant {
 
 export interface LastMessage {
   _id: string;
-  sender: {
-    _id: string;
-    username: string;
-  };
+  sender: Sender;
   content: string;
   createdAt: string;
+  status: "sent" | "delivered" | "read";
 }
 
-export interface ConversationListResponse {
+interface Sender {
+  _id: string;
+  username: string;
+}
+
+export interface ConversationResponse {
+  _id: string;
+  participants: Participant[];
+  chatName: string;
+}
+
+export interface ConversationListResponse extends ConversationResponse {
   _id: string;
   type: "one_to_one";
-  participants: Participant[];
   createdAt: string;
-  __v: number;
   lastMessage: LastMessage;
 }
 
@@ -34,4 +41,8 @@ export interface FriendRequestListResponse {
   username: string;
   email: string;
   userId: string;
+}
+
+export interface MessageListResponse extends LastMessage {
+  conversationId: string;
 }
