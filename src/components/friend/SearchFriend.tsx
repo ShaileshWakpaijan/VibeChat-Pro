@@ -12,19 +12,24 @@ import debounce from "lodash.debounce";
 import useSearchUser from "@/hooks/useSearchUser";
 import AddFriendBtn from "./AddFriendBtn";
 import { SearchUserResponse } from "@/lib/types/serverResponse";
+import SearchFriendSkeleton from "../skeletons/SearchFriendSkeleton";
 
 export function SearchFriend() {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState<SearchUserResponse[]>([]);
   const searchUserFn = useSearchUser();
 
   const searchUser = async (username: string) => {
+    setLoading(true);
     try {
       const res = await searchUserFn(username);
       setUsers(res?.data);
+      setLoading(false);
     } catch (error) {
       console.error("Search failed", error);
+      setLoading(false);
     }
   };
 
@@ -65,24 +70,35 @@ export function SearchFriend() {
           onValueChange={(val) => setQuery(val)}
         />
         <CommandList className="my-2">
-          {users?.length === 0 && <CommandEmpty>No users found.</CommandEmpty>}
-
-          {users?.map((user) => {
-            return (
-              <div
-                className=" flex items-center justify-between px-4 py-3 hover:bg-neutral-100 dark:hover:bg-neutral-800 duration-100 rounded-lg mx-2"
-                key={user._id}
-              >
-                <div className=" flex items-center gap-4">
-                  <span className=" w-8 h-8 bg-stone-700 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                    S
-                  </span>
-                  <span className=" font-semibold">@{user.username}</span>
-                </div>
-                <AddFriendBtn friendStatus={user.status} id={user._id} setOpen={setOpen} />
-              </div>
-            );
-          })}
+          {!loading && users?.length === 0 && (
+            <CommandEmpty>No users found.</CommandEmpty>
+          )}
+          {loading ? (
+            <SearchFriendSkeleton />
+          ) : (
+            <>
+              {users?.map((user) => {
+                return (
+                  <div
+                    className=" flex items-center justify-between px-4 py-3 hover:bg-neutral-100 dark:hover:bg-neutral-800 duration-100 rounded-lg mx-2"
+                    key={user._id}
+                  >
+                    <div className=" flex items-center gap-4">
+                      <span className=" w-8 h-8 bg-stone-700 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                        S
+                      </span>
+                      <span className=" font-semibold">@{user.username}</span>
+                    </div>
+                    <AddFriendBtn
+                      friendStatus={user.status}
+                      id={user._id}
+                      setOpen={setOpen}
+                    />
+                  </div>
+                );
+              })}
+            </>
+          )}
         </CommandList>
       </CommandDialog>
     </>

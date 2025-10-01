@@ -10,11 +10,11 @@ import { FriendRequestListResponse } from "@/lib/types/serverResponse";
 const AcceptRejectBtn = ({
   userId,
   setPendingRequests,
-  setOpen
+  setOpen,
 }: {
   userId: string;
   setPendingRequests: Dispatch<SetStateAction<FriendRequestListResponse[]>>;
-  setOpen: Dispatch<SetStateAction<boolean>>
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const [loading, setLoading] = useState(false);
   const { acceptRequestFn, rejectRequestFn } = useAcceptRejectRequest();
@@ -75,7 +75,10 @@ const AcceptRejectBtn = ({
     </div>
   ) : (
     <Link href={`/chat/${userId}`}>
-      <Button onClick={() => setOpen(false)} className=" px-3 cursor-pointer w-24 bg-transparent hover:bg-transparent border-2 font-bold text-black dark:text-white">
+      <Button
+        onClick={() => setOpen(false)}
+        className=" px-3 cursor-pointer w-24 bg-transparent hover:bg-transparent border-2 font-bold text-black dark:text-white"
+      >
         Chat
       </Button>
     </Link>

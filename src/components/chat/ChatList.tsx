@@ -5,6 +5,7 @@ import ChatItem from "./ChatItem";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ConversationListResponse } from "@/lib/types/serverResponse";
+import ChatListSkeleton from "../skeletons/ChatListSkeleton";
 
 export default function ChatList() {
   const getConversationList = useGetConversationList();
@@ -30,7 +31,7 @@ export default function ChatList() {
   }, []);
 
   return loading ? (
-    <>loading</>
+    <ChatListSkeleton />
   ) : (
     <div className="w-full overflow-y-auto">
       {conversationList?.length != 0 &&

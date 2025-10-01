@@ -12,6 +12,8 @@ import {
   MessageListResponse,
 } from "@/lib/types/serverResponse";
 import { useSession } from "next-auth/react";
+import ChatWindowSkeleton from "../skeletons/ChatWindowSkeleton";
+import ChatHeaderSkeleton from "../skeletons/ChatHeaderSkeleton";
 
 export default function ChatWindow() {
   const { chatId }: { chatId: string } = useParams();
@@ -19,9 +21,8 @@ export default function ChatWindow() {
   const session = useSession();
   const [loading, setLoading] = useState(false);
   const [messageList, setMessageList] = useState<MessageListResponse[]>([]);
-  const [conversationInfo, setConversationInfo] = useState<ConversationResponse | null>(
-    null
-  );
+  const [conversationInfo, setConversationInfo] =
+    useState<ConversationResponse | null>(null);
 
   const loadConversationMsgFn = async () => {
     setLoading(true);
@@ -44,17 +45,17 @@ export default function ChatWindow() {
     <div className="md:px-4 flex flex-col relative h-[calc(100vh-4.8rem)]">
       {/* Header */}
       {loading ? (
-        <>Loading...</>
+        <ChatHeaderSkeleton />
       ) : (
         conversationInfo && <ChatHeader name={conversationInfo?.chatName} />
       )}
 
       {/* Scrollable Message Area */}
-      <ScrollArea className=" h-[calc(100vh-8rem)] md:h-[calc(100vh-12rem)]">
-        {loading ? (
-          <>Loading...</>
-        ) : (
-          <div className="flex flex-col py-2">
+      {loading ? (
+        <ChatWindowSkeleton />
+      ) : (
+        <ScrollArea className=" h-[calc(100vh-8rem)] md:h-[calc(100vh-12rem)]">
+          <div className="flex flex-col py-3">
             {messageList?.length != 0 &&
               messageList.map((msg, i) => (
                 <MessageBubble
@@ -65,8 +66,8 @@ export default function ChatWindow() {
                 />
               ))}
           </div>
-        )}
-      </ScrollArea>
+        </ScrollArea>
+      )}
 
       {/* Footer/Input Placeholder */}
       <div className="mt-1 px-4 h-14 fixed md:static bottom-3 w-full md:py-2 md:border-t">
