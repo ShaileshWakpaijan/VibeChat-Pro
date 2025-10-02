@@ -34,6 +34,11 @@ export default function ChatList() {
     <ChatListSkeleton />
   ) : (
     <div className="w-full overflow-y-auto">
+      {conversationList?.length == 0 && (
+        <div className="h-full flex items-center justify-center text-gray-500">
+          No conversation yet.
+        </div>
+      )}
       {conversationList?.length != 0 &&
         conversationList.map((chat, i) => (
           <Link key={chat._id} href={`/chat/${chat._id}`}>

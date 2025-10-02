@@ -111,7 +111,7 @@ export async function GET(
           return NextResponse.json(
             {
               success: false,
-              message: "You are not friends with this user.",
+              message: "No such friend or conversation found.",
               isFriend: false,
             },
             { status: 403 }

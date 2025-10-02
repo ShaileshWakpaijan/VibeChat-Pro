@@ -6,7 +6,7 @@ import { ChatInput } from "./ChatInput";
 import ChatHeader from "./ChatHeader";
 import useLoadConversationMsg from "@/hooks/useLoadConversationMsg";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   ConversationResponse,
   MessageListResponse,
@@ -14,6 +14,8 @@ import {
 import { useSession } from "next-auth/react";
 import ChatWindowSkeleton from "../skeletons/ChatWindowSkeleton";
 import ChatHeaderSkeleton from "../skeletons/ChatHeaderSkeleton";
+import { toast } from "sonner";
+import { toastStyles } from "@/lib/ToastStyle";
 
 export default function ChatWindow() {
   const { chatId }: { chatId: string } = useParams();
@@ -23,17 +25,37 @@ export default function ChatWindow() {
   const [messageList, setMessageList] = useState<MessageListResponse[]>([]);
   const [conversationInfo, setConversationInfo] =
     useState<ConversationResponse | null>(null);
+  const router = useRouter();
+  const [isFirstTime, setIsFirstTime] = useState(false);
 
   const loadConversationMsgFn = async () => {
     setLoading(true);
     try {
       const res = await loadConversationMsg(chatId);
+      console.log(res);
+      if (!res?.success) {
+        if (res?.isFriend) {
+          setIsFirstTime(true);
+        } else {
+          toast.error(<span>{res?.message}</span>, {
+            style: toastStyles.danger as React.CSSProperties,
+          });
+          router.push(`/chat`);
+        }
+        return;
+      }
+
+      if (res?.success && res?.one2OneConversation?._id) {
+        router.push(`/chat/${res?.one2OneConversation?._id}`);
+        return;
+      }
+
       setMessageList(res?.messages);
       setConversationInfo(res?.conversation);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       console.error("Failed to load conversation list", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,6 +89,10 @@ export default function ChatWindow() {
               ))}
           </div>
         </ScrollArea>
+      )}
+
+      {isFirstTime && !loading && (
+        <p className=" font-bold">Start Conversation</p>
       )}
 
       {/* Footer/Input Placeholder */}
