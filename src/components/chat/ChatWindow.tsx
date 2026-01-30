@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from "./ChatInput";
 import ChatHeader from "./ChatHeader";
 import useLoadConversationMsg from "@/hooks/useLoadConversationMsg";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ConversationResponse,
@@ -27,6 +27,7 @@ export default function ChatWindow() {
     useState<ConversationResponse | null>(null);
   const router = useRouter();
   const [isFirstTime, setIsFirstTime] = useState(false);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const loadConversationMsgFn = async () => {
     setLoading(true);
@@ -60,6 +61,10 @@ export default function ChatWindow() {
   };
 
   useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messageList]);
+
+  useEffect(() => {
     loadConversationMsgFn();
   }, []);
 
@@ -87,6 +92,7 @@ export default function ChatWindow() {
                   time={msg.createdAt}
                 />
               ))}
+            <div ref={bottomRef} />
           </div>
         </ScrollArea>
       )}

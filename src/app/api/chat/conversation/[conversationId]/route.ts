@@ -1,7 +1,6 @@
 import { authOptions } from "@/lib/authOptions";
 import { ConnectDB } from "@/lib/ConnectDB";
 import Conversation from "@/models/Conversation";
-import Friend from "@/models/Friend";
 import Message from "@/models/Message";
 import { Types } from "mongoose";
 import { getServerSession } from "next-auth";
@@ -9,7 +8,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: { conversationId: string } },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,7 +17,7 @@ export async function GET(
     if (!user || !user?._id) {
       return NextResponse.json(
         { success: false, message: "User not authenticated." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -27,7 +26,7 @@ export async function GET(
     if (!conversationId) {
       return NextResponse.json(
         { success: false, message: "Conversation or Friend ID is required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -94,33 +93,30 @@ export async function GET(
     ]);
 
     if (!conversation) {
+      if (user._id === conversationId) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "No such friend or conversation found.",
+            isFriend: false,
+          },
+          { status: 403 },
+        );
+      }
+      
       const one2OneConversation = await Conversation.findOne({
         participants: { $all: [user._id, conversationId] },
         type: "one_to_one",
       });
 
       if (!one2OneConversation) {
-        const friends = await Friend.findOne({
-          $or: [
-            { sender: user._id, receiver: conversationId, status: "accepted" },
-            { sender: conversationId, receiver: user._id, status: "accepted" },
-          ],
-        });
-
-        if (!friends) {
-          return NextResponse.json(
-            {
-              success: false,
-              message: "No such friend or conversation found.",
-              isFriend: false,
-            },
-            { status: 403 }
-          );
-        }
-
         return NextResponse.json(
-          { success: false, message: "Start a conversation.", isFriend: true },
-          { status: 200 }
+          {
+            success: false,
+            message: "No such friend or conversation found.",
+            isFriend: false,
+          },
+          { status: 403 },
         );
       }
 
@@ -130,7 +126,7 @@ export async function GET(
           message: "Redirect to one-2-one conversation.",
           one2OneConversation,
         },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -144,7 +140,7 @@ export async function GET(
           success: false,
           message: "You are not part of this conversation.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -161,14 +157,14 @@ export async function GET(
         messages,
         conversation,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     console.error("Error while getting conversation: ", err);
 
     return NextResponse.json(
       { success: false, message: "Error while getting conversation." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

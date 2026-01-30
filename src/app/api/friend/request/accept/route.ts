@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/authOptions";
 import { ConnectDB } from "@/lib/ConnectDB";
+import Conversation from "@/models/Conversation";
 import Friend from "@/models/Friend";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -13,20 +14,20 @@ export async function POST(req: Request) {
     if (!sender) {
       return NextResponse.json(
         { success: false, message: "Sender ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!user || !user?._id) {
       return NextResponse.json(
         { success: false, message: "User not authenticated." },
-        { status: 401 }
+        { status: 401 },
       );
     }
     if (sender === user?._id) {
       return NextResponse.json(
         { success: false, message: "You can't be sender to accept." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,35 +35,44 @@ export async function POST(req: Request) {
 
     const isFriend = await Friend.findOne({
       sender,
-      receiver: session.user?._id,
+      receiver: user?._id,
     });
 
     if (!isFriend) {
       return NextResponse.json(
         { success: false, message: "Friend request not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (isFriend.status === "accepted") {
       return NextResponse.json(
         { success: false, message: "You are already firends." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     isFriend.status = "accepted";
     await isFriend.save();
 
+    const newConversation = await Conversation.create({
+      participants: [user?._id, sender],
+    });
+    await newConversation.save();
+
     return NextResponse.json(
-      { success: true, message: "Friend request accepted." },
-      { status: 200 }
+      {
+        success: true,
+        message: "Friend request accepted.",
+        conversation: newConversation,
+      },
+      { status: 200 },
     );
   } catch (err) {
     console.error("Error while rejecting friend request: ", err);
     return NextResponse.json(
       { success: false, message: "Error while accepting friend request" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
