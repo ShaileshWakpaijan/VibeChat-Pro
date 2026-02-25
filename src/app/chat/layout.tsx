@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatList from "@/components/chat/ChatList";
 import { Navbar_LG, Navbar_SM } from "@/components/Navbar";
+import { useSession } from "next-auth/react";
+import { connectSocket } from "@/lib/socket";
 
 export default function ChatLayout({
   children,
@@ -13,6 +15,8 @@ export default function ChatLayout({
 }) {
   const pathname = usePathname();
   const isChatListPage = pathname === "/chat";
+  const session = useSession();
+  const user = session.data?.user;
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -22,6 +26,12 @@ export default function ChatLayout({
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (user?._id) {
+      connectSocket();
+    }
+  }, [user]);
 
   if (isMobile) {
     if (isChatListPage) {
