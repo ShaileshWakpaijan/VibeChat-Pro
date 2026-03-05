@@ -40,12 +40,21 @@ io.on("connection", (socket) => {
   console.log("Authenticated user id:", socket.data.userId);
 
   socket.on("join", (userId: string) => {
-    socket.join(`user:${userId}`); // Personal Room
-    console.log(`User ${userId} joined room`);
+    try {
+      socket.join(`user:${userId}`);
+      console.log(`User ${userId} joined personal room`);
+    } catch (e) {
+      console.error("[index] join personal room error:", e);
+      socket.emit("errorMsg", "Failed to join personal room");
+    }
   });
 
-  handleConversationEvents(socket);
-  handleMessageEvents(io, socket);
+  try {
+    handleConversationEvents(socket);
+    handleMessageEvents(io, socket);
+  } catch (e) {
+    console.error("[index] controller registration error:", e);
+  }
 
   socket.on("disconnect", () => {
     console.log("User disconnected with id", socket.id);

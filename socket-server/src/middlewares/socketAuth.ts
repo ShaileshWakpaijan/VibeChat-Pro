@@ -5,20 +5,27 @@ export const socketAuth = async (socket: Socket, next: any) => {
     const token = socket.handshake.auth?.token;
 
     if (!token) {
+      console.error("[socketAuth] no token provided");
       return next(new Error("No token provided"));
     }
-    console.log("Token: ", token);
+
     const secret = process.env.SOCKET_JWT_SECRET as string;
+    if (!secret) {
+      console.error("[socketAuth] MISSING SOCKET_JWT_SECRET env");
+      return next(new Error("Auth config error"));
+    }
 
     const decoded = jwt.verify(token, secret) as { sub: string };
-
-    console.log(decoded);
+    if (!decoded) {
+      console.error("[socketAuth] failed to decode token");
+      return next(new Error("Failed to decode token"));
+    }
 
     socket.data.userId = decoded.sub;
 
     next();
   } catch (error) {
-    console.log("not decoding", error);
+    console.error("[socketAuth] authentication failed:", error);
     next(new Error("Authentication Failed"));
   }
 };

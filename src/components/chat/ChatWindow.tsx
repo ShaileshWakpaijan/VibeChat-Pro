@@ -16,6 +16,8 @@ import ChatWindowSkeleton from "../skeletons/ChatWindowSkeleton";
 import ChatHeaderSkeleton from "../skeletons/ChatHeaderSkeleton";
 import { toast } from "sonner";
 import { toastStyles } from "@/lib/ToastStyle";
+import useSocketConversation from "@/hooks/useSocketConversation";
+import useSocketChat from "@/hooks/useSocketChat";
 
 export default function ChatWindow() {
   const { chatId }: { chatId: string } = useParams();
@@ -28,6 +30,13 @@ export default function ChatWindow() {
   const router = useRouter();
   const [isFirstTime, setIsFirstTime] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  useSocketConversation(conversationInfo?._id);
+
+  useSocketChat((message) => {
+    if (message.conversationId === chatId) {
+      setMessageList((prev) => [...prev, message]);
+    }
+  });
 
   const loadConversationMsgFn = async () => {
     setLoading(true);

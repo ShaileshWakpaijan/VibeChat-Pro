@@ -148,7 +148,7 @@ export async function GET(
     messages = await Message.find({ conversationId: conversation?._id })
       .populate("sender", "username")
       .sort({ createdAt: 1 })
-      .limit(20);
+      // .limit(20);
 
     return NextResponse.json(
       {
