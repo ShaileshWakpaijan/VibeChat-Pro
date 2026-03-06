@@ -6,7 +6,7 @@ import { toastStyles } from "./ToastStyle";
 
 let socket: Socket | null = null;
 
-const SOCKET_URL = process.env.SOCKET_URL || "http://localhost:3001";
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
 
 export const connectSocket = async () => {
   if (socket) {
