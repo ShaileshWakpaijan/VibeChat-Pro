@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     if (!user || !user?._id) {
       return NextResponse.json(
         { success: false, message: "User not authenticated." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -86,25 +86,24 @@ export async function GET(req: Request) {
               if: { $eq: ["$type", "group"] },
               then: "$groupName",
               else: {
-                $let: {
-                  vars: {
-                    otherThanMe: {
-                      $filter: {
-                        input: "$participants",
-                        as: "p",
-                        cond: {
-                          $ne: ["$$p._id", new Types.ObjectId(user._id)],
-                        },
-                      },
-                    },
+                $cond: {
+                  if: {
+                    $eq: [
+                      { $arrayElemAt: ["$participants._id", 0] },
+                      new Types.ObjectId(user._id),
+                    ],
                   },
-                  in: {
-                    $arrayElemAt: ["$$otherThanMe.username", 0],
-                  },
+                  then: { $arrayElemAt: ["$participants.username", 1] },
+                  else: { $arrayElemAt: ["$participants.username", 0] },
                 },
               },
             },
           },
+        },
+      },
+      {
+        $sort: {
+          "lastMessage.createdAt": -1,
         },
       },
     ]);
@@ -114,7 +113,7 @@ export async function GET(req: Request) {
     console.error("Error while getting users conversations: ", err);
     return NextResponse.json(
       { success: false, message: "Error while getting users conversations." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

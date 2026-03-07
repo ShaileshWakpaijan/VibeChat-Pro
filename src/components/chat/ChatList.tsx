@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ConversationListResponse } from "@/lib/types/serverResponse";
 import ChatListSkeleton from "../skeletons/ChatListSkeleton";
+let latestMessage: (newMsg: ConversationListResponse) => void;
 
 export default function ChatList() {
   const getConversationList = useGetConversationList();
@@ -24,6 +25,13 @@ export default function ChatList() {
       setLoading(false);
       console.error("Failed to load conversation list", error);
     }
+  };
+
+  latestMessage = (newMsg) => {
+    setConversationList((prev) => {
+      let newList = prev.filter((m) => m._id !== newMsg._id);
+      return [newMsg, ...newList];
+    });
   };
 
   useEffect(() => {
@@ -48,3 +56,5 @@ export default function ChatList() {
     </div>
   );
 }
+
+export { latestMessage };

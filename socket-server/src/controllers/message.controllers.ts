@@ -3,6 +3,7 @@ import { Message } from "../models/Message.js";
 import { Conversation } from "../models/Conversation.js";
 import { Types } from "mongoose";
 import "../models/User.js";
+import { ConversationListResponse } from "../lib/types.js";
 
 export const handleMessageEvents = (io: Server, socket: Socket) => {
   socket.on(
@@ -57,19 +58,98 @@ export const handleMessageEvents = (io: Server, socket: Socket) => {
           populatedMsg,
         );
 
-        conversation.participants.forEach((participantId) => {
-          if (participantId.toString() !== sender) {
-            io.to(`user:${participantId.toString()}`).emit(
-              "newMsgNotification",
-              {
-                conversationId,
-                message,
+        let argConversation:
+          | ConversationListResponse[]
+          | ConversationListResponse = await Conversation.aggregate([
+          {
+            $match: {
+              _id: new Types.ObjectId(conversationId),
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "participants",
+              foreignField: "_id",
+              as: "participants",
+              pipeline: [
+                {
+                  $project: {
+                    username: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $lookup: {
+              from: "messages",
+              localField: "lastMessage",
+              foreignField: "_id",
+              as: "lastMessage",
+              pipeline: [
+                {
+                  $lookup: {
+                    from: "users",
+                    localField: "sender",
+                    foreignField: "_id",
+                    as: "sender",
+                    pipeline: [
+                      {
+                        $project: {
+                          username: 1,
+                        },
+                      },
+                    ],
+                  },
+                },
+                { $unwind: "$sender" },
+                {
+                  $project: {
+                    content: 1,
+                    sender: 1,
+                    status: 1,
+                    createdAt: 1,
+                  },
+                },
+              ],
+            },
+          },
+          { $unwind: "$lastMessage" },
+          {
+            $addFields: {
+              chatName: {
+                $cond: {
+                  if: { $eq: ["$type", "group"] },
+                  then: "$groupName",
+                  else: "",
+                },
               },
+            },
+          },
+        ]);
+        argConversation = argConversation[0];
+
+        argConversation.participants.forEach((p) => {
+          if (argConversation.chatName) {
+            io.to(`user:${p._id.toString()}`).emit(
+              "newMsgNotification",
+              argConversation,
             );
+          } else {
+            argConversation.chatName =
+              p._id === argConversation.participants[0]._id
+                ? argConversation.participants[1].username
+                : argConversation.participants[0].username;
           }
+          io.to(`user:${p._id.toString()}`).emit(
+            "newMsgNotification",
+            argConversation,
+          );
+          argConversation.chatName = "";
         });
       } catch (error) {
-        console.log(`Some error in message controller: ${error}`);
+        console.error(`Some error in message controller: ${error}`);
         socket.emit("errorMsg", "Failed to send message");
       }
     },

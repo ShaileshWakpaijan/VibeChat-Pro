@@ -39,10 +39,10 @@ io.on("connection", (socket) => {
   console.log("User connected with id", socket.id);
   console.log("Authenticated user id:", socket.data.userId);
 
-  socket.on("join", (userId: string) => {
+  socket.on("join", () => {
     try {
-      socket.join(`user:${userId}`);
-      console.log(`User ${userId} joined personal room`);
+      socket.join(`user:${socket.data.userId}`);
+      console.log(`User ${socket.data.userId} joined personal room`);
     } catch (e) {
       console.error("[index] join personal room error:", e);
       socket.emit("errorMsg", "Failed to join personal room");

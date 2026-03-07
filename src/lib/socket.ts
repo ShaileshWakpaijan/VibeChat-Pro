@@ -3,10 +3,13 @@ import { io, Socket } from "socket.io-client";
 import Axios from "./axios";
 import { toast } from "sonner";
 import { toastStyles } from "./ToastStyle";
+import { latestMessage } from "@/components/chat/ChatList";
+import { ConversationListResponse } from "./types/serverResponse";
 
 let socket: Socket | null = null;
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
 
 export const connectSocket = async () => {
   if (socket) {
@@ -22,7 +25,7 @@ export const connectSocket = async () => {
     auth: { token },
   });
 
-  socket.on("connection", () => {
+  socket.on("connect", () => {
     console.log("Connected to socket: ", socket?.id);
     socket?.emit("join");
   });
@@ -33,6 +36,11 @@ export const connectSocket = async () => {
     toast.error(text, {
       style: toastStyles.danger as React.CSSProperties,
     });
+  });
+
+  socket?.on("newMsgNotification", (data: ConversationListResponse) => {
+    latestMessage(data);
+    console.log("New message notification received:", data);
   });
 
   return socket;
