@@ -32,11 +32,13 @@ export default function ChatWindow() {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   useSocketConversation(conversationInfo?._id);
 
-  useSocketChat((message) => {
+  const { msgStateDelivered } = useSocketChat((message) => {
     if (message.conversationId === chatId) {
       setMessageList((prev) => [...prev, message]);
     }
   });
+
+  msgStateDelivered(conversationInfo?._id, setMessageList);
 
   const loadConversationMsgFn = async () => {
     setLoading(true);
@@ -99,6 +101,7 @@ export default function ChatWindow() {
                   text={msg.content}
                   isSender={session?.data?.user?._id == msg.sender._id}
                   time={msg.createdAt}
+                  status={msg.status}
                 />
               ))}
             <div ref={bottomRef} />

@@ -6,7 +6,10 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import { socketAuth } from "./middlewares/socketAuth.js";
 import { handleConversationEvents } from "./controllers/conversation.controllers.js";
-import { handleMessageEvents } from "./controllers/message.controllers.js";
+import {
+  handleMessageEvents,
+  msgDeliveredUpdate,
+} from "./controllers/message.controllers.js";
 
 dotenv.config();
 
@@ -49,7 +52,16 @@ io.on("connection", (socket) => {
     }
   });
 
+  if (socket.data.userId) {
+    setTimeout(() => {
+      msgDeliveredUpdate(io, socket).catch((err) => {
+        console.error("[index] msgDeliveredUpdate failed:", err);
+      });
+    }, 100);
+  }
+
   try {
+    msgDeliveredUpdate(io, socket);
     handleConversationEvents(socket);
     handleMessageEvents(io, socket);
   } catch (e) {

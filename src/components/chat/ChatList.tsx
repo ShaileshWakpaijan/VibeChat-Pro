@@ -6,15 +6,20 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ConversationListResponse } from "@/lib/types/serverResponse";
 import ChatListSkeleton from "../skeletons/ChatListSkeleton";
+import useSocketConversation from "@/hooks/useSocketConversation";
+import { useSession } from "next-auth/react";
 let latestMessage: (newMsg: ConversationListResponse) => void;
 
 export default function ChatList() {
+  const session = useSession();
   const getConversationList = useGetConversationList();
   const [conversationList, setConversationList] = useState<
     ConversationListResponse[]
   >([]);
   const [loading, setLoading] = useState(false);
+  const { lastMsgStateDelivered } = useSocketConversation();
 
+  lastMsgStateDelivered(session?.data?.user?._id, setConversationList);
   const getConversaionListFn = async () => {
     setLoading(true);
     try {

@@ -40,7 +40,7 @@ export const connectSocket = async () => {
 
   socket?.on("newMsgNotification", (data: ConversationListResponse) => {
     latestMessage(data);
-    console.log("New message notification received:", data);
+    socket?.emit("recvMsgDelivered", data.lastMessage._id);
   });
 
   return socket;

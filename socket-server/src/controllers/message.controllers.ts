@@ -154,4 +154,142 @@ export const handleMessageEvents = (io: Server, socket: Socket) => {
       }
     },
   );
+
+  //After Receiving New Message If Online
+  socket.on("recvMsgDelivered", async (messageId: string) => {
+    if (!messageId) return;
+
+    let message = await Message.findById(messageId);
+    if (!message) return;
+
+    if (message.status === "delivered" || message.status === "read") return;
+    if (message.sender.toString() === socket.data.userId) return;
+
+    message.status = "delivered";
+    await message.save().catch((e) => console.error("deliver save err", e));
+
+    //After Message Sent If Receiver Online: Conversation List Last Message State Update
+    io.to(`user:${message.sender.toString()}`).emit(
+      "sentMsgConvListDelivered",
+      {
+        _id: message._id.toString(),
+        conversationId: message.conversationId.toString(),
+        sender: message.sender.toString(),
+        status: "delivered",
+      },
+    );
+
+    //After Message Sent If Receiver Online: Message Bubble State Update
+    io.to(`conversation:${message.conversationId.toString()}`).emit(
+      "sentMsgConvDelivered",
+      {
+        _id: message._id.toString(),
+        conversationId: message.conversationId.toString(),
+        sender: message.sender.toString(),
+        status: "delivered",
+      },
+    );
+  });
+};
+
+export const msgDeliveredUpdate = async (io: Server, socket: Socket) => {
+  try {
+    const msgList: {
+      _id: string;
+      conversationId: string;
+      sender: string;
+      isLastMessage: boolean;
+    }[] = await Message.aggregate([
+      {
+        $match: {
+          status: "sent",
+          sender: { $ne: new Types.ObjectId(socket.data.userId) },
+        },
+      },
+      {
+        $lookup: {
+          from: "conversations",
+          localField: "conversationId",
+          foreignField: "_id",
+          as: "conv",
+        },
+      },
+      {
+        $unwind: "$conv",
+      },
+      {
+        $match: {
+          "conv.participants": {
+            $in: [new Types.ObjectId(socket.data.userId)],
+          },
+        },
+      },
+      {
+        $addFields: {
+          isLastMessage: {
+            $cond: {
+              if: { $eq: ["$_id", "$conv.lastMessage"] },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          conversationId: 1,
+          sender: 1,
+          isLastMessage: 1,
+        },
+      },
+    ]);
+
+    if (!msgList || msgList.length === 0) return;
+
+    const ids = msgList.map((m) => m._id);
+    const chunkSize = 500;
+    for (let i = 0; i < ids.length; i += chunkSize) {
+      const chunk = ids.slice(i, i + chunkSize);
+      await Message.updateMany(
+        { _id: { $in: chunk } },
+        { $set: { status: "delivered" } },
+      );
+    }
+
+    const grouped = msgList.reduce(
+      (acc: { [key: string]: typeof msgList }, msg) => {
+        const key = msg.conversationId.toString();
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key].push(msg);
+        return acc;
+      },
+      {},
+    );
+
+    for (const convId in grouped) {
+      const msgIds = grouped[convId].map((m) => m._id.toString());
+
+      // After Login Msg Bubble State Update
+      io.to(`conversation:${convId}`).emit("convMsgStateDelivered", {
+        conversationId: convId,
+        msgIds,
+        status: "delivered",
+      });
+    }
+
+    const convUpdateList = msgList.filter((m) => m.isLastMessage);
+    convUpdateList.forEach((m) => {
+      // After Login Conversation List Last Message State Update
+      io.to(`user:${m.sender.toString()}`).emit("convListMsgStateDelivered", {
+        ...m,
+        status: "delivered",
+      });
+    });
+  } catch (error) {
+    console.error("Error in msgDeliveredUpdate", error);
+    socket.emit("errorMsg", "Error in msgDeliveredUpdate");
+  }
 };
