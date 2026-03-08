@@ -73,10 +73,10 @@ const useSocketConversation = (conversationId?: string) => {
         const socket = getSocket();
         if (socket && socket.connected) {
           // After Login Conversation List Last Message State Update
-          socket?.on("convListMsgStateDelivered", convListHandler);
+          socket?.on("bulkConvListMsgStateDelivered", convListHandler);
 
           // If Online Conv List Msg State Update
-          socket?.on("sentMsgConvListDelivered", sentMsgHandler);
+          socket?.on("singleConvListLastMsgStateDelivered", sentMsgHandler);
           clearInterval(interval);
         }
       }, 100);
@@ -85,8 +85,8 @@ const useSocketConversation = (conversationId?: string) => {
         clearInterval(interval);
         const socket = getSocket();
         if (socket) {
-          socket?.off("convListMsgStateDelivered", convListHandler);
-          socket?.off("sentMsgConvListDelivered", sentMsgHandler);
+          socket?.off("bulkConvListMsgStateDelivered", convListHandler);
+          socket?.off("singleConvListLastMsgStateDelivered", sentMsgHandler);
         }
       };
     }, [senderId, setConversationList]);

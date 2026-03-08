@@ -83,10 +83,10 @@ const useSocketChat = (onReceive?: (message: MessageListResponse) => void) => {
         const socket = getSocket();
         if (socket && socket.connected) {
           //After Login Msg Bubble State Update
-          socket.on("convMsgStateDelivered", bulkMsgDeliveredHandler);
+          socket.on("bulkMsgBubbleStateDelivered", bulkMsgDeliveredHandler);
 
           //If Online Msg Bubble State Update
-          socket.on("sentMsgConvDelivered", newMsgDeliveredHandler);
+          socket.on("singleMsgBubbleStateDelivered", newMsgDeliveredHandler);
           clearInterval(interval);
         }
       }, 100);
@@ -95,8 +95,8 @@ const useSocketChat = (onReceive?: (message: MessageListResponse) => void) => {
         clearInterval(interval);
         const socket = getSocket();
         if (socket) {
-          socket.off("convMsgStateDelivered", bulkMsgDeliveredHandler);
-          socket.off("sentMsgConvDelivered", newMsgDeliveredHandler);
+          socket.off("bulkMsgBubbleStateDelivered", bulkMsgDeliveredHandler);
+          socket.off("singleMsgBubbleStateDelivered", newMsgDeliveredHandler);
         }
       };
     }, [convId, setMessageList]);

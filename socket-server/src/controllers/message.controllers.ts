@@ -170,7 +170,7 @@ export const handleMessageEvents = (io: Server, socket: Socket) => {
 
     //After Message Sent If Receiver Online: Conversation List Last Message State Update
     io.to(`user:${message.sender.toString()}`).emit(
-      "sentMsgConvListDelivered",
+      "singleConvListLastMsgStateDelivered",
       {
         _id: message._id.toString(),
         conversationId: message.conversationId.toString(),
@@ -181,7 +181,7 @@ export const handleMessageEvents = (io: Server, socket: Socket) => {
 
     //After Message Sent If Receiver Online: Message Bubble State Update
     io.to(`conversation:${message.conversationId.toString()}`).emit(
-      "sentMsgConvDelivered",
+      "singleMsgBubbleStateDelivered",
       {
         _id: message._id.toString(),
         conversationId: message.conversationId.toString(),
@@ -273,7 +273,7 @@ export const msgDeliveredUpdate = async (io: Server, socket: Socket) => {
       const msgIds = grouped[convId].map((m) => m._id.toString());
 
       // After Login Msg Bubble State Update
-      io.to(`conversation:${convId}`).emit("convMsgStateDelivered", {
+      io.to(`conversation:${convId}`).emit("bulkMsgBubbleStateDelivered", {
         conversationId: convId,
         msgIds,
         status: "delivered",
@@ -283,10 +283,13 @@ export const msgDeliveredUpdate = async (io: Server, socket: Socket) => {
     const convUpdateList = msgList.filter((m) => m.isLastMessage);
     convUpdateList.forEach((m) => {
       // After Login Conversation List Last Message State Update
-      io.to(`user:${m.sender.toString()}`).emit("convListMsgStateDelivered", {
-        ...m,
-        status: "delivered",
-      });
+      io.to(`user:${m.sender.toString()}`).emit(
+        "bulkConvListMsgStateDelivered",
+        {
+          ...m,
+          status: "delivered",
+        },
+      );
     });
   } catch (error) {
     console.error("Error in msgDeliveredUpdate", error);
