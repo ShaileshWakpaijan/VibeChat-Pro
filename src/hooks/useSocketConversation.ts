@@ -69,6 +69,25 @@ const useSocketConversation = (conversationId?: string) => {
         );
       };
 
+      const sentMsgReadHandler = async (message: {
+        _id: string;
+        conversationId: string;
+        sender: string;
+        status: "read";
+      }) => {
+        if (senderId !== message.sender) return;
+        setConversationList((prev) =>
+          prev.map((conv) =>
+            conv._id === message.conversationId
+              ? {
+                  ...conv,
+                  lastMessage: { ...conv.lastMessage, status: "read" },
+                }
+              : conv,
+          ),
+        );
+      };
+
       const interval = setInterval(() => {
         const socket = getSocket();
         if (socket && socket.connected) {
@@ -77,6 +96,9 @@ const useSocketConversation = (conversationId?: string) => {
 
           // If Online Conv List Msg State Update
           socket?.on("singleConvListLastMsgStateDelivered", sentMsgHandler);
+
+          // If Online Conv List Msg State Update
+          socket?.on("singleConvListLastMsgStateRead", sentMsgReadHandler);
           clearInterval(interval);
         }
       }, 100);

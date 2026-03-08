@@ -190,6 +190,42 @@ export const handleMessageEvents = (io: Server, socket: Socket) => {
       },
     );
   });
+
+  //After Reading New Message If Online
+  socket.on("recvMsgRead", async (messageId: string) => {
+    if (!messageId) return;
+
+    let message = await Message.findById(messageId);
+    if (!message) return;
+
+    if (message.status === "read") return;
+    if (message.sender.toString() === socket.data.userId) return;
+
+    message.status = "read";
+    await message.save().catch((e) => console.error("deliver save err", e));
+
+    //After Message Sent If Receiver's Chat Opened: Conversation List Last Message State Update
+    io.to(`user:${message.sender.toString()}`).emit(
+      "singleConvListLastMsgStateRead",
+      {
+        _id: message._id.toString(),
+        conversationId: message.conversationId.toString(),
+        sender: message.sender.toString(),
+        status: "read",
+      },
+    );
+
+    //After Message Sent If Receiver's Chat Opened: Message Bubble State Update
+    io.to(`conversation:${message.conversationId.toString()}`).emit(
+      "singleMsgBubbleStateRead",
+      {
+        _id: message._id.toString(),
+        conversationId: message.conversationId.toString(),
+        sender: message.sender.toString(),
+        status: "read",
+      },
+    );
+  });
 };
 
 export const msgDeliveredUpdate = async (io: Server, socket: Socket) => {
@@ -294,5 +330,101 @@ export const msgDeliveredUpdate = async (io: Server, socket: Socket) => {
   } catch (error) {
     console.error("Error in msgDeliveredUpdate", error);
     socket.emit("errorMsg", "Error in msgDeliveredUpdate");
+  }
+};
+
+export const msgReadUpdate = async (
+  io: Server,
+  socket: Socket,
+  conversationId: string,
+) => {
+  try {
+    const msgList: {
+      _id: string;
+      conversationId: string;
+      sender: string;
+      isLastMessage: boolean;
+    }[] = await Message.aggregate([
+      {
+        $match: {
+          status: { $in: ["sent", "delivered"] },
+          conversationId: new Types.ObjectId(conversationId),
+          sender: { $ne: new Types.ObjectId(socket.data.userId) },
+        },
+      },
+      {
+        $lookup: {
+          from: "conversations",
+          localField: "conversationId",
+          foreignField: "_id",
+          as: "conv",
+        },
+      },
+      {
+        $unwind: "$conv",
+      },
+      {
+        $match: {
+          "conv.participants": {
+            $in: [new Types.ObjectId(socket.data.userId)],
+          },
+        },
+      },
+      {
+        $addFields: {
+          isLastMessage: {
+            $cond: {
+              if: { $eq: ["$_id", "$conv.lastMessage"] },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          conversationId: 1,
+          sender: 1,
+          isLastMessage: 1,
+        },
+      },
+    ]);
+
+    if (!msgList || msgList.length === 0) return;
+
+    const ids = msgList.map((m) => m._id);
+    const chunkSize = 500;
+    for (let i = 0; i < ids.length; i += chunkSize) {
+      const chunk = ids.slice(i, i + chunkSize);
+      await Message.updateMany(
+        { _id: { $in: chunk } },
+        { $set: { status: "read" } },
+      );
+    }
+
+    // After Conv Open Msg Bubble State Update
+    io.to(`conversation:${conversationId}`).emit("bulkMsgBubbleStateRead", {
+      conversationId,
+      msgIds: ids,
+      status: "read",
+    });
+
+    // After Conv Open Conv List Last Msg State Update
+    const [lastMsg] = msgList.filter((m) => m.isLastMessage);
+    if (lastMsg) {
+      io.to(`user:${lastMsg.sender.toString()}`).emit(
+        "singleConvListLastMsgStateRead",
+        {
+          _id: lastMsg._id.toString(),
+          conversationId: lastMsg.conversationId.toString(),
+          sender: lastMsg.sender.toString(),
+          status: "read",
+        },
+      );
+    }
+  } catch (error) {
+    console.error("Error in msgReadUpdate", error);
+    socket.emit("errorMsg", "Error in msgReadUpdate");
   }
 };

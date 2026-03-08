@@ -1,7 +1,6 @@
 import { getSocket } from "@/lib/socket";
 import { toastStyles } from "@/lib/ToastStyle";
 import { MessageListResponse } from "@/lib/types/serverResponse";
-import { useSession } from "next-auth/react";
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -51,7 +50,6 @@ const useSocketChat = (onReceive?: (message: MessageListResponse) => void) => {
         msgIds: string[];
         status: "delivered";
       }) => {
-        console.log(convId, data.conversationId);
         if (convId !== data.conversationId) return;
 
         const idSet = new Set(data.msgIds);
@@ -68,7 +66,6 @@ const useSocketChat = (onReceive?: (message: MessageListResponse) => void) => {
         sender: string;
         status: "delivered";
       }) => {
-        console.log(convId, message.conversationId);
         if (convId !== message.conversationId) return;
 
         const idSet = new Set([message._id]);
@@ -102,6 +99,65 @@ const useSocketChat = (onReceive?: (message: MessageListResponse) => void) => {
     }, [convId, setMessageList]);
   };
 
-  return { sendMsg, msgStateDelivered };
+  const msgStateRead = async (
+    convId: string | undefined,
+    setMessageList: Dispatch<SetStateAction<MessageListResponse[]>>,
+  ) => {
+    useEffect(() => {
+      const bulkMsgReadHandler = async (data: {
+        conversationId: string;
+        msgIds: string[];
+        status: "read";
+      }) => {
+        if (convId !== data.conversationId) return;
+
+        const idSet = new Set(data.msgIds);
+        setMessageList((prev) =>
+          prev.map((m) =>
+            idSet.has(m._id) ? { ...m, status: data.status } : m,
+          ),
+        );
+      };
+
+      const newMsgReadHandler = (message: {
+        _id: string;
+        conversationId: string;
+        sender: string;
+        status: "read";
+      }) => {
+        if (convId !== message.conversationId) return;
+
+        const idSet = new Set([message._id]);
+        setMessageList((prev) =>
+          prev.map((m) =>
+            idSet.has(m._id) ? { ...m, status: message.status } : m,
+          ),
+        );
+      };
+
+      const interval = setInterval(() => {
+        const socket = getSocket();
+        if (socket && socket.connected) {
+          //After Open Chat Msg Bubble State Update
+          socket.on("bulkMsgBubbleStateRead", bulkMsgReadHandler);
+
+          //If Chat Opened Msg Bubble State Update
+          socket.on("singleMsgBubbleStateRead", newMsgReadHandler);
+          clearInterval(interval);
+        }
+      }, 100);
+
+      return () => {
+        clearInterval(interval);
+        const socket = getSocket();
+        if (socket) {
+          socket.off("bulkMsgBubbleStateRead", bulkMsgReadHandler);
+          socket.off("singleMsgBubbleStateRead", newMsgReadHandler);
+        }
+      };
+    }, [convId, setMessageList]);
+  };
+
+  return { sendMsg, msgStateDelivered, msgStateRead };
 };
 export default useSocketChat;

@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { toastStyles } from "@/lib/ToastStyle";
 import useSocketConversation from "@/hooks/useSocketConversation";
 import useSocketChat from "@/hooks/useSocketChat";
+import { getSocket } from "@/lib/socket";
 
 export default function ChatWindow() {
   const { chatId }: { chatId: string } = useParams();
@@ -32,19 +33,25 @@ export default function ChatWindow() {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   useSocketConversation(conversationInfo?._id);
 
-  const { msgStateDelivered } = useSocketChat((message) => {
+  const { msgStateDelivered, msgStateRead } = useSocketChat((message) => {
     if (message.conversationId === chatId) {
       setMessageList((prev) => [...prev, message]);
+    }
+    if (message.sender && message.sender._id !== session?.data?.user?._id) {
+      const socket = getSocket();
+      if (socket && socket.connected) {
+        socket.emit("recvMsgRead", message._id);
+      }
     }
   });
 
   msgStateDelivered(conversationInfo?._id, setMessageList);
+  msgStateRead(conversationInfo?._id, setMessageList);
 
   const loadConversationMsgFn = async () => {
     setLoading(true);
     try {
       const res = await loadConversationMsg(chatId);
-      console.log(res);
       if (!res?.success) {
         if (res?.isFriend) {
           setIsFirstTime(true);

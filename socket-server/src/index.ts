@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
 
   try {
     msgDeliveredUpdate(io, socket);
-    handleConversationEvents(socket);
+    handleConversationEvents(io, socket);
     handleMessageEvents(io, socket);
   } catch (e) {
     console.error("[index] controller registration error:", e);
