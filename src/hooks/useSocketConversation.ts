@@ -1,3 +1,4 @@
+import { unReadMsgCountSetToZero } from "@/components/chat/ChatList";
 import { getSocket } from "@/lib/socket";
 import { ConversationListResponse } from "@/lib/types/serverResponse";
 import { Dispatch, SetStateAction, useEffect } from "react";
@@ -9,6 +10,7 @@ const useSocketConversation = (conversationId?: string) => {
 
       if (socket && socket.connected) {
         socket.emit("joinConversation", conversationId);
+        unReadMsgCountSetToZero(conversationId);
         clearInterval(interval);
       }
     }, 100);

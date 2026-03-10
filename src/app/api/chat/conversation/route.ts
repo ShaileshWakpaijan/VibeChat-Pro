@@ -102,8 +102,43 @@ export async function GET(req: Request) {
         },
       },
       {
+        $lookup: {
+          from: "messages",
+          let: { conversationId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$conversationId", "$$conversationId"] },
+                    { $ne: ["$sender", new Types.ObjectId(user._id)] },
+                    { $in: ["$status", ["sent", "delivered"]] },
+                  ],
+                },
+              },
+            },
+            {
+              $count: "count",
+            },
+          ],
+          as: "unread",
+        },
+      },
+      {
+        $addFields: {
+          unreadMsgNo: {
+            $ifNull: [{ $arrayElemAt: ["$unread.count", 0] }, 0],
+          },
+        },
+      },
+      {
         $sort: {
           "lastMessage.createdAt": -1,
+        },
+      },
+      {
+        $project: {
+          unread: 0,
         },
       },
     ]);

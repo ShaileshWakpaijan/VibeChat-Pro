@@ -27,6 +27,7 @@ export interface ConversationListResponse extends ConversationResponse {
   type: "one_to_one";
   createdAt: string;
   lastMessage: LastMessage;
+  unreadMsgNo: number;
 }
 
 export interface SearchUserResponse {

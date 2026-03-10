@@ -61,7 +61,6 @@ io.on("connection", (socket) => {
   }
 
   try {
-    msgDeliveredUpdate(io, socket);
     handleConversationEvents(io, socket);
     handleMessageEvents(io, socket);
   } catch (e) {

@@ -8,7 +8,9 @@ import { ConversationListResponse } from "@/lib/types/serverResponse";
 import ChatListSkeleton from "../skeletons/ChatListSkeleton";
 import useSocketConversation from "@/hooks/useSocketConversation";
 import { useSession } from "next-auth/react";
-let latestMessage: (newMsg: ConversationListResponse) => void;
+import { usePathname } from "next/navigation";
+let latestMessage: (updatedListItem: ConversationListResponse) => void;
+let unReadMsgCountSetToZero: (conversationId: string | undefined) => void;
 
 export default function ChatList() {
   const session = useSession();
@@ -18,6 +20,8 @@ export default function ChatList() {
   >([]);
   const [loading, setLoading] = useState(false);
   const { lastMsgStateDelivered } = useSocketConversation();
+  const pathname = usePathname();
+  const openedChatId = pathname.split("/chat/")[1];
 
   lastMsgStateDelivered(session?.data?.user?._id, setConversationList);
   const getConversaionListFn = async () => {
@@ -32,11 +36,44 @@ export default function ChatList() {
     }
   };
 
-  latestMessage = (newMsg) => {
+  latestMessage = (updatedListItem) => {
     setConversationList((prev) => {
-      let newList = prev.filter((m) => m._id !== newMsg._id);
-      return [newMsg, ...newList];
+      const myUserId = session?.data?.user?._id?.toString();
+
+      const idx = prev.findIndex((c) => c._id === updatedListItem._id);
+      const prevItem = idx >= 0 ? prev[idx] : undefined;
+
+      const isSenderMe =
+        myUserId &&
+        updatedListItem.lastMessage?.sender?._id?.toString() === myUserId;
+      const isOpened = openedChatId === updatedListItem._id;
+
+      let newUnread = 1;
+      if (isSenderMe || isOpened) {
+        newUnread = 0;
+      } else if (prevItem) {
+        newUnread = (prevItem.unreadMsgNo || 0) + 1;
+      }
+
+      const newList = prev.filter((c) => c._id !== updatedListItem._id);
+
+      return [
+        {
+          ...updatedListItem,
+          unreadMsgNo: newUnread,
+        },
+        ...newList,
+      ];
     });
+  };
+
+  unReadMsgCountSetToZero = (conversationId?: string) => {
+    if (!conversationId) return;
+    setConversationList((prev) =>
+      prev.map((conv) =>
+        conv._id === conversationId ? { ...conv, unreadMsgNo: 0 } : conv,
+      ),
+    );
   };
 
   useEffect(() => {
@@ -55,11 +92,15 @@ export default function ChatList() {
       {conversationList?.length != 0 &&
         conversationList.map((chat, i) => (
           <Link key={chat._id} href={`/chat/${chat._id}`}>
-            <ChatItem lastMessage={chat?.lastMessage} name={chat?.chatName} />
+            <ChatItem
+              lastMessage={chat?.lastMessage}
+              name={chat?.chatName}
+              unreadMsgNo={chat?.unreadMsgNo}
+            />
           </Link>
         ))}
     </div>
   );
 }
 
-export { latestMessage };
+export { latestMessage, unReadMsgCountSetToZero };

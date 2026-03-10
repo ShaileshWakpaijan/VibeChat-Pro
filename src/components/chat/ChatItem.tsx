@@ -5,9 +5,11 @@ import { useSession } from "next-auth/react";
 export default function ChatItem({
   lastMessage,
   name,
+  unreadMsgNo,
 }: {
   lastMessage?: LastMessage;
   name: string;
+  unreadMsgNo: number;
 }) {
   const session = useSession();
   const isSender = session?.data?.user?._id == lastMessage?.sender._id;
@@ -23,8 +25,9 @@ export default function ChatItem({
         {/* Top Row: Name & Time */}
         <div className="flex justify-between items-center text-sm font-medium dark:text-white">
           <span className="truncate">{name}</span>
-          <span className="text-xs text-green-600 dark:text-green-400 whitespace-nowrap">
-            {/* <span className="text-xs text-stone-400 dark:text-white/60 whitespace-nowrap"> */}
+          <span
+            className={`text-xs ${unreadMsgNo > 0 ? "text-xs text-green-600 dark:text-green-400" : "text-stone-400 dark:text-white/60"} whitespace-nowrap`}
+          >
             {new Date(lastMessage?.createdAt || "").toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -45,9 +48,11 @@ export default function ChatItem({
 
             {lastMessage?.content}
           </div>
-          <div className=" bg-green-600 dark:bg-green-400 h-5 w-5 text-white dark:text-black rounded-full text-center font-semibold">
-            2
-          </div>
+          {unreadMsgNo > 0 && (
+            <div className=" bg-green-600 dark:bg-green-400 h-5 min-w-5 px-1 text-white dark:text-black rounded-full text-center font-semibold">
+              {unreadMsgNo}
+            </div>
+          )}
         </div>
       </div>
     </div>
