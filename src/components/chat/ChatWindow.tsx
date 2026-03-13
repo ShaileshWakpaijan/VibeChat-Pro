@@ -92,7 +92,12 @@ export default function ChatWindow() {
       {loading ? (
         <ChatHeaderSkeleton />
       ) : (
-        conversationInfo && <ChatHeader name={conversationInfo?.chatName} />
+        conversationInfo && (
+          <ChatHeader
+            name={conversationInfo?.chatName}
+            participants={conversationInfo?.participants}
+          />
+        )
       )}
 
       {/* Scrollable Message Area */}

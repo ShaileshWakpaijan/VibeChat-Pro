@@ -1,23 +1,50 @@
-import { LastMessage } from "@/lib/types/serverResponse";
+import { getPresence, onOnlinePresence } from "@/lib/socket";
+import { LastMessage, Participant } from "@/lib/types/serverResponse";
 import { Check, CheckCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 export default function ChatItem({
   lastMessage,
   name,
   unreadMsgNo,
+  participants,
 }: {
   lastMessage?: LastMessage;
   name: string;
   unreadMsgNo: number;
+  participants: Participant[];
 }) {
   const session = useSession();
-  const isSender = session?.data?.user?._id == lastMessage?.sender._id;
+  const myUserId = session?.data?.user?._id?.toString();
+  const isSender = myUserId === lastMessage?.sender._id.toString();
+  const [isOnline, setisOnline] = useState(false);
+
+  const otherUser = participants.find(
+    (p) => p._id.toString() !== myUserId,
+  )?._id;
+
+  useEffect(() => {
+    if (!otherUser) return;
+    setisOnline(getPresence(otherUser).online);
+    const unsubscribe = onOnlinePresence(({ userId, online }) => {
+      if (userId === otherUser) setisOnline(online);
+    });
+
+    return () => unsubscribe();
+  }, [otherUser]);
+
   return (
     <div className="w-full px-6 py-4 hover:bg-white/7 transition-all duration-200 cursor-pointer flex items-center gap-3 border-b border-white/10">
       {/* Profile Picture */}
-      <div className="min-w-[48px] min-h-[48px] w-12 h-12 bg-stone-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-        {name?.charAt(0).toUpperCase()}
+      <div className="relative">
+        <div className="min-w-[48px] min-h-[48px] w-12 h-12 bg-stone-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+          {name?.charAt(0).toUpperCase()}
+        </div>
+
+        {isOnline && (
+          <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-stone-800 rounded-full"></span>
+        )}
       </div>
 
       {/* Chat Info */}

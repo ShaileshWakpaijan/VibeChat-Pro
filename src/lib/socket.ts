@@ -8,6 +8,24 @@ import { ConversationListResponse } from "./types/serverResponse";
 
 let socket: Socket | null = null;
 
+type PresencePayload = { userId: string; online: boolean };
+const presenceCache = new Set<string>();
+const onlinePresenceListeners = new Set<(p: PresencePayload) => void>();
+
+export const onOnlinePresence: (
+  cb: (p: PresencePayload) => void,
+) => () => void = (cb) => {
+  onlinePresenceListeners.add(cb);
+  return () => {
+    onlinePresenceListeners.delete(cb);
+  };
+};
+
+export function getPresence(userId?: string) {
+  if (!userId) return { userId, online: false };
+  return { userId, online: presenceCache.has(userId) };
+}
+
 const SOCKET_URL =
   process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
 
@@ -26,7 +44,6 @@ export const connectSocket = async () => {
   });
 
   socket.on("connect", () => {
-    console.log("Connected to socket: ", socket?.id);
     socket?.emit("join");
   });
 
@@ -41,6 +58,20 @@ export const connectSocket = async () => {
   socket?.on("newMsgNotification", (data: ConversationListResponse) => {
     latestMessage(data);
     socket?.emit("recvMsgDelivered", data.lastMessage._id);
+  });
+
+  socket.on("onlinePresence", (payload: PresencePayload) => {
+    if (payload.online) presenceCache.add(payload.userId);
+    else presenceCache.delete(payload.userId);
+    for (const cb of onlinePresenceListeners) cb(payload);
+  });
+
+  socket.on("onlineUsers", (ids: string[]) => {
+    for (const id of ids) {
+      presenceCache.add(id);
+      for (const cb of onlinePresenceListeners)
+        cb({ userId: id, online: true });
+    }
   });
 
   return socket;

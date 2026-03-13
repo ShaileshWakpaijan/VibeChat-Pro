@@ -96,6 +96,7 @@ export default function ChatList() {
               lastMessage={chat?.lastMessage}
               name={chat?.chatName}
               unreadMsgNo={chat?.unreadMsgNo}
+              participants={chat?.participants}
             />
           </Link>
         ))}

@@ -1,4 +1,4 @@
-interface Participant {
+export interface Participant {
   _id: string;
   username: string;
 }

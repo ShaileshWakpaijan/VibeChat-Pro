@@ -38,21 +38,35 @@ await connectDB();
 
 io.use(socketAuth);
 
+const onlineCounts = new Map<string, number>();
+
 io.on("connection", (socket) => {
+  const userId = socket.data.userId;
   console.log("User connected with id", socket.id);
-  console.log("Authenticated user id:", socket.data.userId);
+  console.log("Authenticated user id:", userId);
 
   socket.on("join", () => {
     try {
-      socket.join(`user:${socket.data.userId}`);
-      console.log(`User ${socket.data.userId} joined personal room`);
+      socket.join(`user:${userId}`);
+      console.log(`User ${userId} joined personal room`);
     } catch (e) {
       console.error("[index] join personal room error:", e);
       socket.emit("errorMsg", "Failed to join personal room");
     }
   });
 
-  if (socket.data.userId) {
+  (function () {
+    const prev = onlineCounts.get(userId) || 0;
+    onlineCounts.set(userId, prev + 1);
+    if (prev === 0) {
+      io.emit("onlinePresence", { userId, online: true });
+    }
+  })();
+
+  const currentlyOnline = Array.from(onlineCounts.keys()); // array of userId strings
+  socket.emit("onlineUsers", currentlyOnline);
+
+  if (userId) {
     setTimeout(() => {
       msgDeliveredUpdate(io, socket).catch((err) => {
         console.error("[index] msgDeliveredUpdate failed:", err);
@@ -69,6 +83,16 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("User disconnected with id", socket.id);
+    const cur = onlineCounts.get(userId) || 0;
+    if (cur <= 1) {
+      onlineCounts.delete(userId);
+      io.emit("onlinePresence", {
+        userId,
+        online: false,
+      });
+    } else {
+      onlineCounts.set(userId, cur - 1);
+    }
   });
 });
 
