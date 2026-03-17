@@ -7,6 +7,7 @@ import ChatList from "@/components/chat/ChatList";
 import { Navbar_LG, Navbar_SM } from "@/components/Navbar";
 import { useSession } from "next-auth/react";
 import { connectSocket } from "@/lib/socket";
+import { useRouter } from "next/navigation";
 
 export default function ChatLayout({
   children,
@@ -17,6 +18,14 @@ export default function ChatLayout({
   const isChatListPage = pathname === "/chat";
   const session = useSession();
   const user = session.data?.user;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session.status === "unauthenticated") {
+      router.push("/login");
+      return;
+    }
+  }, [session, router]);
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -33,6 +42,7 @@ export default function ChatLayout({
     }
   }, [user]);
 
+  if (session.status === "loading") return <h1>Loading...</h1>;
   if (isMobile) {
     if (isChatListPage) {
       return (

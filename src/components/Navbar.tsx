@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { SearchFriend } from "./friend/SearchFriend";
 import { useTheme } from "next-themes";
 import { FriendRequestList } from "./friend/FriendRequestList";
+import ProfileIcon from "./ProfileIcon";
 
 export const Navbar_LG = () => {
   const { setTheme, theme, systemTheme } = useTheme();
@@ -33,7 +34,7 @@ export const Navbar_LG = () => {
                   : "dark"
                 : theme === "dark"
                   ? "light"
-                  : "dark"
+                  : "dark",
             )
           }
         >
@@ -49,9 +50,7 @@ export const Navbar_LG = () => {
             <Moon className="w-5 h-5" />
           )}
         </button>
-        <div className="min-w-[36px] min-h-[36px] w-9 h-9 bg-stone-700 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-          S
-        </div>
+        <ProfileIcon />
       </div>
     </div>
   );
@@ -78,7 +77,7 @@ export const Navbar_SM = () => {
                   : "dark"
                 : theme === "dark"
                   ? "light"
-                  : "dark"
+                  : "dark",
             )
           }
         >
@@ -94,9 +93,10 @@ export const Navbar_SM = () => {
             <Moon className="w-5 h-5" />
           )}
         </button>
-        <div className="min-w-[36px] min-h-[36px] w-9 h-9 bg-stone-700 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+        {/* <div className="min-w-[36px] min-h-[36px] w-9 h-9 bg-stone-700 rounded-full flex items-center justify-center text-white text-xs font-semibold">
           S
-        </div>
+        </div> */}
+        <ProfileIcon />
       </div>
     </div>
   );

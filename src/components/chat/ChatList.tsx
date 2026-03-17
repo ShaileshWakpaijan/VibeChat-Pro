@@ -28,7 +28,7 @@ export default function ChatList() {
     setLoading(true);
     try {
       const res = await getConversationList();
-      setConversationList(res?.conversations);
+      setConversationList(res?.conversations || []);
       setLoading(false);
     } catch (error) {
       setLoading(false);

@@ -62,10 +62,7 @@ const LoginForm = () => {
   const inputRef = useRef<null | HTMLInputElement>(null);
 
   useEffect(() => {
-    if (session.status === "authenticated") {
-      router.push("/dashboard");
-      return;
-    }
+    if (session.status === "authenticated") router.push("/chat");
     inputRef.current?.focus();
   }, [session, router]);
 

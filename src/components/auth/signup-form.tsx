@@ -68,7 +68,7 @@ const SignupForm = () => {
   const inputRef = useRef<null | HTMLInputElement>(null);
 
   useEffect(() => {
-    if (session.status === "authenticated") router.push("/dashboard");
+    if (session.status === "authenticated") router.push("/chat");
     inputRef.current?.focus();
   }, [session, router]);
 
