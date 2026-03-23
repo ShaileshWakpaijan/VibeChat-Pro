@@ -1,6 +1,4 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import { useRouter } from "next/navigation";
-import { toastStyles } from "@/lib/ToastStyle";
 import {
   Dialog,
   DialogContent,
@@ -14,42 +12,25 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { toast } from "sonner";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Loader2, Mail } from "lucide-react";
-import useVerifyOtp from "@/hooks/useVerifyOtp";
 
 export function VerifyOtp({
   isOpen,
-  username,
   setIsOpen,
+  verifyOTPFn,
 }: {
   isOpen: boolean;
   username: string;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+  verifyOTPFn: (
+    otp: string,
+    setOTPLoading: Dispatch<SetStateAction<boolean>>,
+  ) => Promise<void>;
 }) {
-  const router = useRouter();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-  const verifyotp = useVerifyOtp();
 
-  const onClickHandler = async () => {
-    setLoading(true);
-    const res = await verifyotp({ username, otp });
-    if (!res.success) {
-      toast.error(<span>{res.message}</span>, {
-        style: toastStyles.danger as React.CSSProperties,
-      });
-      setLoading(false);
-      return;
-    }
-    setLoading(false);
-
-    toast.success(<span>OTP verification successful.</span>, {
-      style: toastStyles.success as React.CSSProperties,
-    });
-    return router.push("/login");
-  };
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent
@@ -58,7 +39,7 @@ export function VerifyOtp({
         }}
         className="w-fit bg-card flex flex-col items-center"
       >
-        <DialogHeader className="w-80 sm:w-[22rem] max-w-sm mx-2">
+        <DialogHeader className="w-80 sm:w-88 max-w-sm mx-2">
           <DialogTitle className="text-2xl text-center flex justify-center">
             <div className=" bg-stone-700/10 dark:bg-stone-700/30 p-4 rounded-full">
               <Mail />
@@ -109,7 +90,7 @@ export function VerifyOtp({
             disabled={loading}
             type="submit"
             className="w-full"
-            onClick={onClickHandler}
+            onClick={() => verifyOTPFn(otp, setLoading)}
           >
             {loading ? <Loader2 className=" animate-spin" /> : "Verify"}
           </Button>

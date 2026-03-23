@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { signupSchema, SignupSchema } from "@/lib/schemas/auth-schema";
 import { useSession } from "next-auth/react";
@@ -23,6 +23,7 @@ import { VerifyOtp } from "./verify-otp";
 import ThemeButton from "../ThemeButton";
 import { Loader2 } from "lucide-react";
 import useSignup from "@/hooks/useSignup";
+import useVerifyOtp from "@/hooks/useVerifyOtp";
 
 const SignupForm = () => {
   const router = useRouter();
@@ -30,6 +31,7 @@ const SignupForm = () => {
   const signup = useSignup();
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const verifyotp = useVerifyOtp();
 
   const form = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
@@ -60,9 +62,30 @@ const SignupForm = () => {
       </span>,
       {
         style: toastStyles.success as React.CSSProperties,
-      }
+      },
     );
     setIsOpen(true);
+  };
+
+  const verifyOTPFn = async (
+    otp: string,
+    setOTPLoading: Dispatch<SetStateAction<boolean>>,
+  ) => {
+    setOTPLoading(true);
+    const res = await verifyotp({ username: form.getValues("username"), otp });
+    if (!res.success) {
+      toast.error(<span>{res.message}</span>, {
+        style: toastStyles.danger as React.CSSProperties,
+      });
+      setOTPLoading(false);
+      return;
+    }
+    setOTPLoading(false);
+
+    toast.success(<span>OTP verification successful.</span>, {
+      style: toastStyles.success as React.CSSProperties,
+    });
+    return router.push("/login");
   };
 
   const inputRef = useRef<null | HTMLInputElement>(null);
@@ -75,7 +98,7 @@ const SignupForm = () => {
   if (session?.status === "loading") return <h1>Loading...</h1>;
   return (
     <>
-      <Card className="w-full max-w-sm mx-2 shadow-md border-[1px] gap-4">
+      <Card className="w-full max-w-sm mx-2 shadow-md border gap-4">
         <CardHeader>
           <CardTitle className="text-2xl text-center">
             Sign Up to VibeChat-Pro
@@ -114,7 +137,7 @@ const SignupForm = () => {
                     <FormLabel htmlFor="username">Username</FormLabel>
                     <Input
                       {...field}
-                      type="username"
+                      type="text"
                       formNoValidate
                       id="username"
                       placeholder="Enter username"
@@ -176,6 +199,7 @@ const SignupForm = () => {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         username={form.getValues("username")}
+        verifyOTPFn={verifyOTPFn}
       />
       <ThemeButton />
     </>

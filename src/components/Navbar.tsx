@@ -3,7 +3,7 @@ import { Moon, Sun } from "lucide-react";
 import { SearchFriend } from "./friend/SearchFriend";
 import { useTheme } from "next-themes";
 import { FriendRequestList } from "./friend/FriendRequestList";
-import ProfileIcon from "./ProfileIcon";
+import ProfileIcon from "./Profile/ProfileIcon";
 
 export const Navbar_LG = () => {
   const { setTheme, theme, systemTheme } = useTheme();

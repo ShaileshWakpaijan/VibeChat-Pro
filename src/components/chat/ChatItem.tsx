@@ -38,7 +38,7 @@ export default function ChatItem({
     <div className="w-full px-6 py-4 hover:bg-white/7 transition-all duration-200 cursor-pointer flex items-center gap-3 border-b border-white/10">
       {/* Profile Picture */}
       <div className="relative">
-        <div className="min-w-[48px] min-h-[48px] w-12 h-12 bg-stone-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+        <div className="min-w-12 min-h-12 w-12 h-12 bg-stone-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
           {name?.charAt(0).toUpperCase()}
         </div>
 

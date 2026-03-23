@@ -37,7 +37,7 @@ const ChatHeader = ({
           <ArrowLeft />
         </Link>
         <div className="relative">
-          <div className="min-w-[44px] min-h-[44px] h-11 w-11 bg-stone-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+          <div className="min-w-11 min-h-11 h-11 w-11 bg-stone-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
             {name?.charAt(0).toUpperCase()}
           </div>
           {isOnline && (

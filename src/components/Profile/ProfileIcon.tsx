@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, UserRoundPen } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 
 const ProfileIcon = () => {
   const session = useSession();
@@ -31,9 +32,11 @@ const ProfileIcon = () => {
 
         {/* Actions */}
         <div className="mt-2 flex flex-col gap-1">
-          <DropdownMenuItem className="cursor-pointer">
-            <UserRoundPen /> Edit Profile
-          </DropdownMenuItem>
+          <Link href="/profile-update" className="flex gap-2 items-center">
+            <DropdownMenuItem className="w-full cursor-pointer">
+              <UserRoundPen /> Edit Profile
+            </DropdownMenuItem>
+          </Link>
 
           <DropdownMenuItem
             className="cursor-pointer text-red-500"

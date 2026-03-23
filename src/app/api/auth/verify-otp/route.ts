@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     await User.findOneAndUpdate({ username }, { isVerified: true });
     await Otp.findOneAndDelete({ username });
     return NextResponse.json(
-      { success: true, message: "Email verified successfylly." },
+      { success: true, message: "Email verified successfully." },
       { status: 201 }
     );
   } catch (err) {

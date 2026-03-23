@@ -69,7 +69,7 @@ const LoginForm = () => {
   if (session?.status === "loading") return <h1>Loading...</h1>;
   return (
     <>
-      <Card className="w-full max-w-sm mx-2 shadow-md border-[1px] gap-4">
+      <Card className="w-full max-w-sm mx-2 shadow-md border gap-4">
         <CardHeader>
           <CardTitle className="text-2xl text-center">
             Login to VibeChat-Pro
@@ -90,7 +90,7 @@ const LoginForm = () => {
                     <FormLabel htmlFor="username">Username</FormLabel>
                     <Input
                       {...field}
-                      type="username"
+                      type="text"
                       formNoValidate
                       id="username"
                       placeholder="Enter username"
