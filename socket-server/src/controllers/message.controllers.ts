@@ -403,6 +403,23 @@ export const msgReadUpdate = async (
       );
     }
 
+    socket.on("unreadMessageRead", async ({ messageIds, conversationId }) => {
+      const chunkSize = 500;
+      for (let i = 0; i < messageIds.length; i += chunkSize) {
+        const chunk = messageIds.slice(i, i + chunkSize);
+        await Message.updateMany(
+          { _id: { $in: chunk } },
+          { $set: { status: "read" } },
+        );
+      }
+
+      io.to(`conversation:${conversationId}`).emit("bulkMsgBubbleStateRead", {
+        conversationId,
+        msgIds: messageIds,
+        status: "read",
+      });
+    });
+
     // After Conv Open Msg Bubble State Update
     io.to(`conversation:${conversationId}`).emit("bulkMsgBubbleStateRead", {
       conversationId,

@@ -43,6 +43,24 @@ export default function ChatWindow() {
         socket.emit("recvMsgRead", message._id);
       }
     }
+    let unreadIds = messageList
+      .filter(
+        (msg) =>
+          msg.sender._id.toString() !== session?.data?.user?._id &&
+          msg.status !== "read",
+      )
+      .map((msg) => msg._id);
+    unreadIds = [...unreadIds, message._id];
+
+    if (unreadIds.length > 0) {
+      const socket = getSocket();
+      if (socket && socket.connected) {
+        socket.emit("unreadMessageRead", {
+          messageIds: unreadIds,
+          conversationId: chatId,
+        });
+      }
+    }
   });
 
   msgStateDelivered(conversationInfo?._id, setMessageList);

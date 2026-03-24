@@ -10,8 +10,8 @@ const useSocketConversation = (conversationId?: string) => {
 
       if (socket && socket.connected) {
         socket.emit("joinConversation", conversationId);
-        unReadMsgCountSetToZero(conversationId);
         clearInterval(interval);
+        unReadMsgCountSetToZero(conversationId);
       }
     }, 100);
 
