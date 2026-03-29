@@ -20,6 +20,8 @@ export interface ConversationResponse {
   _id: string;
   participants: Participant[];
   chatName: string;
+  showMyMood: boolean;
+  seeHisMood: boolean;
 }
 
 export interface ConversationListResponse extends ConversationResponse {
@@ -46,4 +48,9 @@ export interface FriendRequestListResponse {
 
 export interface MessageListResponse extends LastMessage {
   conversationId: string;
+}
+
+export interface MoodVisibilityResponse {
+  mode: "everyone" | "nobody" | "custom";
+  customFriends: Participant[];
 }

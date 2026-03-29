@@ -1,4 +1,4 @@
-import { Schema, Document, models, model } from "mongoose";
+import { Schema, Document, models, model, Types } from "mongoose";
 import bcrypt from "bcryptjs";
 
 export interface IUser extends Document {
@@ -6,6 +6,14 @@ export interface IUser extends Document {
   username: string;
   password: string;
   isVerified: boolean;
+  moodVisibility: {
+    mode: "everyone" | "nobody" | "custom";
+    customFriends: Types.ObjectId[];
+  };
+  whoseMoodICanSee: {
+    mode: "everyone" | "nobody" | "custom";
+    customFriends: Types.ObjectId[];
+  };
 }
 
 const UserSchema: Schema = new Schema<IUser>(
@@ -32,6 +40,22 @@ const UserSchema: Schema = new Schema<IUser>(
       default: false,
     },
     password: { type: String, required: true, trim: true },
+    moodVisibility: {
+      mode: {
+        type: String,
+        enum: ["everyone", "nobody", "custom"],
+        default: "everyone",
+      },
+      customFriends: [{ type: Types.ObjectId, ref: "User" }],
+    },
+    whoseMoodICanSee: {
+      mode: {
+        type: String,
+        enum: ["everyone", "nobody", "custom"],
+        default: "everyone",
+      },
+      customFriends: [{ type: Types.ObjectId, ref: "User" }],
+    },
   },
   { timestamps: true },
 );

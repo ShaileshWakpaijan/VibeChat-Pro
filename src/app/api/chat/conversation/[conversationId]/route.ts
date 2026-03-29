@@ -2,6 +2,7 @@ import { authOptions } from "@/lib/authOptions";
 import { ConnectDB } from "@/lib/ConnectDB";
 import Conversation from "@/models/Conversation";
 import Message from "@/models/Message";
+import User from "@/models/User";
 import { Types } from "mongoose";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -103,7 +104,7 @@ export async function GET(
           { status: 403 },
         );
       }
-      
+
       const one2OneConversation = await Conversation.findOne({
         participants: { $all: [user._id, conversationId] },
         type: "one_to_one",
@@ -144,11 +145,45 @@ export async function GET(
       );
     }
 
+    let otherUser = conversation.participants.find(
+      (p: { _id: Types.ObjectId; username: string }) =>
+        p._id.toString() !== user._id.toString(),
+    );
+
+    const dbUser = await User.findById(user._id).select(
+      "moodVisibility whoseMoodICanSee",
+    );
+
+    conversation.showMyMood = false;
+    conversation.seeHisMood = false;
+
+    if (dbUser.moodVisibility.mode === "everyone")
+      conversation.showMyMood = true;
+    if (dbUser.moodVisibility.mode === "nobody")
+      conversation.showMyMood = false;
+    if (dbUser.moodVisibility.mode === "custom") {
+      conversation.showMyMood = dbUser.moodVisibility.customFriends.some(
+        (friendId: Types.ObjectId) =>
+          friendId.toString() === otherUser._id.toString(),
+      );
+    }
+
+    if (dbUser.whoseMoodICanSee.mode === "everyone")
+      conversation.seeHisMood = true;
+    if (dbUser.whoseMoodICanSee.mode === "nobody")
+      conversation.seeHisMood = false;
+    if (dbUser.whoseMoodICanSee.mode === "custom") {
+      conversation.seeHisMood = dbUser.whoseMoodICanSee.customFriends.some(
+        (friendId: Types.ObjectId) =>
+          friendId.toString() === otherUser._id.toString(),
+      );
+    }
+
     let messages = [];
     messages = await Message.find({ conversationId: conversation?._id })
       .populate("sender", "username")
-      .sort({ createdAt: 1 })
-      // .limit(20);
+      .sort({ createdAt: 1 });
+    // .limit(20);
 
     return NextResponse.json(
       {

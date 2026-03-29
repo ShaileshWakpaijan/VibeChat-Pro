@@ -4,7 +4,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, UserRoundPen } from "lucide-react";
+import { Eye, EyeOff, LogOut, UserRoundPen } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
@@ -14,15 +14,15 @@ const ProfileIcon = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="w-9 h-9 cursor-pointer bg-stone-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-          {session.data?.user.username.charAt(0)}
+          {session.data?.user.username.charAt(0).toUpperCase()}
         </div>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-56 p-2">
+      <DropdownMenuContent className="w-56 p-2 shadow-lg">
         {/* Profile Header */}
         <div className="flex flex-col items-center gap-2 p-3 border-b">
           <div className="w-12 h-12 bg-stone-700 rounded-full flex items-center justify-center text-white font-semibold">
-            {session.data?.user.username.charAt(0)}
+            {session.data?.user.username.charAt(0).toUpperCase()}
           </div>
           <p className="text-sm font-medium">{session.data?.user.username}</p>
           <p className="text-xs text-muted-foreground">
@@ -38,6 +38,23 @@ const ProfileIcon = () => {
             </DropdownMenuItem>
           </Link>
 
+          <Link
+            href="/profile-update/mood-visibility"
+            className="flex gap-2 items-center"
+          >
+            <DropdownMenuItem className="w-full cursor-pointer">
+              <Eye /> Mood Visibility
+            </DropdownMenuItem>
+          </Link>
+
+          <Link
+            href="/profile-update/mood-visibility-i-want-to-see"
+            className="flex gap-2 items-center"
+          >
+            <DropdownMenuItem className="w-full cursor-pointer">
+              <EyeOff /> Mood You Want To See
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem
             className="cursor-pointer text-red-500"
             onClick={() => signOut({ callbackUrl: "/login" })}

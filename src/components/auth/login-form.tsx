@@ -43,8 +43,6 @@ const LoginForm = () => {
       password,
     });
 
-    console.log(res);
-
     if (res?.error) {
       toast.error(<span>{res?.error}</span>, {
         style: toastStyles.danger as React.CSSProperties,

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Home, MessageCircle, Moon, Sun } from "lucide-react";
 import { SearchFriend } from "./friend/SearchFriend";
 import { useTheme } from "next-themes";
 import { FriendRequestList } from "./friend/FriendRequestList";
 import ProfileIcon from "./Profile/ProfileIcon";
+import Link from "next/link";
 
 export const Navbar_LG = () => {
   const { setTheme, theme, systemTheme } = useTheme();
@@ -24,6 +25,9 @@ export const Navbar_LG = () => {
         <button className="cursor-pointer p-3">
           <FriendRequestList />
         </button>
+        <Link href={"/chat"} className="cursor-pointer p-2">
+          <MessageCircle size={20} />
+        </Link>
         <button
           className="cursor-pointer p-3"
           onClick={() =>
@@ -67,6 +71,9 @@ export const Navbar_SM = () => {
         <button className="cursor-pointer p-2">
           <FriendRequestList />
         </button>
+        <Link href={"/chat"} className="cursor-pointer p-2">
+          <MessageCircle size={20} />
+        </Link>
         <button
           className="cursor-pointer p-2"
           onClick={() =>

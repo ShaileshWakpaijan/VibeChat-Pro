@@ -8,12 +8,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { toastStyles } from "@/lib/ToastStyle";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import {
   updatePasswordSchema,
   UpdatePasswordSchema,
@@ -92,10 +91,7 @@ const UpdateProfile = () => {
 
   if (session?.status === "loading") return <h1>Loading...</h1>;
   return (
-    <div className="relative">
-      <Link href={"/chat"} className="fixed top-10 left-5 sm:hidden">
-        <ArrowLeft />
-      </Link>
+    <div>
       <Tabs defaultValue="username" className="w-90">
         <TabsList className="mx-2">
           <TabsTrigger value="username" disabled={loading}>

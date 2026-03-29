@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     await Otp.findOneAndDelete({ username });
     return NextResponse.json(
       { success: true, message: "Email verified successfully." },
-      { status: 201 }
+      { status: 200 }
     );
   } catch (err) {
     console.error("Signup error: ", err);

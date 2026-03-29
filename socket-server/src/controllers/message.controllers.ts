@@ -4,6 +4,7 @@ import { Conversation } from "../models/Conversation.js";
 import { Types } from "mongoose";
 import "../models/User.js";
 import { ConversationListResponse } from "../lib/types.js";
+import { User } from "../models/User.js";
 
 export const handleMessageEvents = (io: Server, socket: Socket) => {
   socket.on(
@@ -47,6 +48,35 @@ export const handleMessageEvents = (io: Server, socket: Socket) => {
           sender,
           content: content.trim(),
         });
+
+        const senderUser = await User.findById(sender).select(
+          "moodVisibility username",
+        );
+
+        let receiver = conversation.participants.find(
+          (p: Types.ObjectId) => p.toString() !== sender,
+        );
+
+        const receiverUser = await User.findById(receiver).select(
+          "whoseMoodICanSee username",
+        );
+
+        let emotionLabel = null;
+
+        if (
+          (senderUser?.moodVisibility.mode === "everyone" ||
+            (senderUser?.moodVisibility.mode === "custom" &&
+              senderUser?.moodVisibility.customFriends.some((id) =>
+                id.equals(receiver),
+              ))) &&
+          (receiverUser?.whoseMoodICanSee.mode === "everyone" ||
+            (receiverUser?.whoseMoodICanSee.mode === "custom" &&
+              receiverUser?.whoseMoodICanSee.customFriends.some((id) =>
+                id.equals(senderUser._id),
+              )))
+        ) {
+          emotionLabel = await emotionAPI(content);
+        }
 
         const populatedMsg = await message.populate("sender", "username");
 
@@ -146,6 +176,19 @@ export const handleMessageEvents = (io: Server, socket: Socket) => {
             "newMsgNotification",
             argConversation,
           );
+
+          if (p._id.toString() !== sender) {
+            io.to(`user:${p._id.toString()}`).emit(
+              "newEmotionLabel",
+              emotionLabel,
+            );
+          }
+          if (p._id.toString() === sender) {
+            io.to(`user:${p._id.toString()}`).emit(
+              "myNewEmotionLabel",
+              emotionLabel,
+            );
+          }
           argConversation.chatName = "";
         });
       } catch (error) {
@@ -445,3 +488,28 @@ export const msgReadUpdate = async (
     socket.emit("errorMsg", "Error in msgReadUpdate");
   }
 };
+
+async function emotionAPI(content: string) {
+  const res = await fetch("http://localhost:8000/predict", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: content }),
+  });
+  const body = await res.json();
+  const scores = body.predictions[0].scores;
+
+  const sorted = [...scores].sort((a, b) => b.score - a.score);
+
+  const top1 = sorted[0];
+  const top2 = sorted[1];
+
+  const diff = (top1.score - top2.score) / top1.score;
+
+  // If close enough → keep both
+  if (diff < 0.05) {
+    return { data: [top1.label, top2.label] };
+  }
+
+  // Otherwise → only top1
+  return { data: [top1.label] };
+}

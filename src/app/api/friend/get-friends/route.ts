@@ -12,38 +12,52 @@ export async function GET() {
     if (!user || !user?._id) {
       return NextResponse.json(
         { success: false, message: "User not authenticated." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     await ConnectDB();
 
-    const pendingFriendRequests = await Friend.find({
+    const friendsList = await Friend.find({
       $or: [
-        {
-          receiver: session.user?._id,
-          status: "accepted",
-        },
-        {
-          sender: session.user?._id,
-          status: "accepted",
-        },
+        { receiver: session.user?._id, status: "accepted" },
+        { sender: session.user?._id, status: "accepted" },
       ],
+    })
+      .populate("sender", "username")
+      .populate("receiver", "username");
+
+    const formattedFriends = friendsList.map((friend) => {
+      const isSender =
+        friend.sender._id.toString() === session.user._id.toString();
+
+      return isSender
+        ? {
+            _id: friend.receiver._id,
+            username: friend.receiver.username,
+          }
+        : {
+            _id: friend.sender._id,
+            username: friend.sender.username,
+          };
     });
+
+    console.log(formattedFriends);
 
     return NextResponse.json(
       {
         success: true,
         message: "Friend list fetched.",
-        data: pendingFriendRequests,
+        data: formattedFriends,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     console.error("Error while getting friend list: ", err);
     return NextResponse.json(
       { success: false, message: "Error while getting friend list." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
+

@@ -31,11 +31,29 @@ export default function ChatWindow() {
   const router = useRouter();
   const [isFirstTime, setIsFirstTime] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [myEmotionLabel, setMyEmotionLabel] = useState([]);
+  const [senderEmotionLabel, setSenderEmotionLabel] = useState([]);
   useSocketConversation(conversationInfo?._id);
 
   const { msgStateDelivered, msgStateRead } = useSocketChat((message) => {
     if (message.conversationId === chatId) {
       setMessageList((prev) => [...prev, message]);
+      const socket = getSocket();
+      if (socket && socket.connected) {
+        socket.on("newEmotionLabel", (data) => {
+          if (data) {
+            setSenderEmotionLabel(data.data);
+            console.log("senders", data.data);
+          }
+        });
+        socket.on("myNewEmotionLabel", (data) => {
+          if (data) {
+            console.log("send new emotion label:", data);
+            setMyEmotionLabel(data.data);
+            console.log("my", data.data);
+          }
+        });
+      }
     }
     if (message.sender && message.sender._id !== session?.data?.user?._id) {
       const socket = getSocket();
@@ -114,6 +132,10 @@ export default function ChatWindow() {
           <ChatHeader
             name={conversationInfo?.chatName}
             participants={conversationInfo?.participants}
+            myEmotionLabel={myEmotionLabel}
+            senderEmotionLabel={senderEmotionLabel}
+            showMyMoodProps={conversationInfo?.showMyMood}
+            seeHisMoodProps={conversationInfo?.seeHisMood}
           />
         )
       )}
